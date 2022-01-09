@@ -1,0 +1,16 @@
+{
+    "name": "panastasiadist/enqueueror",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "panastasiadist\\Enqueueror\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Panos Anastasiadis",
+            "email": "panos.anastasiadis@outlook.com"
+        }
+    ],
+    "require": {}
+}
