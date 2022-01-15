@@ -42,4 +42,48 @@ class Processor
 
         return false;
     }
+
+    /**
+     * Undocumented function
+     *
+     * @param string $filepath
+     * @return string|false
+     */
+    public static function get_header_values( Asset $asset )
+    {
+        $content = file_get_contents( $asset->get_filepath() );
+
+        if ( false === $content ) {
+            return false;
+        }
+
+        $fields = array();
+
+        $stop = false;
+        $start = mb_strpos( $content, '/*' );
+
+        if ( false !== $start ) {
+            $stop = mb_strpos( $content, '*/', $start + 2 );
+        }
+
+        $header = '';
+
+        if ( false !== $start && false !== $stop ) {
+            $header = mb_substr( $content, $start, $stop + 2 - $start );
+        }
+
+        $lines = explode( PHP_EOL, $header );
+
+        foreach ( $lines as $line ) {
+            $matches = array();
+
+            if ( preg_match( '/([\w]+)\h*:\h*([\w\-]+)/', $line, $matches ) ) {
+                $name = $matches[1];
+                $value = $matches[2];
+                $fields[ $name ] = $value;
+            }
+        }
+
+        return $fields;
+    }
 }

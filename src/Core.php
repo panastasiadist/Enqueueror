@@ -123,11 +123,12 @@ class Core
                 }
 
                 $file_url = $this->get_url_from_path( $file_path );
+                $dependencies = $this->get_asset_dependencies( $asset );
 
                 if ( 'scripts' == $type ) {
-                    wp_enqueue_script( $handle, $file_url, [], filemtime( $file_path ), 'footer' == $location );
+                    wp_enqueue_script( $handle, $file_url, $dependencies, filemtime( $file_path ), 'footer' == $location );
                 } elseif ( 'stylesheets' == $type ) {
-                    wp_enqueue_style( $handle, $file_url, [], filemtime( $file_path ) );
+                    wp_enqueue_style( $handle, $file_url, $dependencies, filemtime( $file_path ) );
                 }
             } elseif ( 'internal' == $source ) {
                 $file_path = $this->get_processed_asset_filepath( $asset );
@@ -141,6 +142,19 @@ class Core
                 echo 'scripts' == $type ? '</script>' : ( 'stylesheets' == $type ? '</style>' : '' );
             }
         }
+    }
+
+    private function get_asset_dependencies( Asset $asset ) 
+    {
+        $dependencies = array();
+
+        $header = $this->get_header_values( $asset );
+
+        if ( $header && isset( $header[ 'Requires' ] ) ) {
+            $dependencies = explode( ',', $header[ 'Requires' ] );
+        }
+
+        return $dependencies;
     }
 
     private function get_processed_asset_filepath( Asset $asset, string $store_as_filename = '' )
@@ -168,6 +182,17 @@ class Core
         }
 
         return $processed_file_path;
+    }
+
+    private function get_header_values( Asset $asset ) 
+    {
+        if ( ! isset( $this->extension_to_processor[ $asset->get_extension() ] ) ) {
+            return false;
+        }
+
+        $processor_class = $this->extension_to_processor[ $asset->get_extension() ];
+
+        return $processor_class::get_header_values( $asset );
     }
 
     private function store_processed_file( string $name, string $path, string $extension ) 

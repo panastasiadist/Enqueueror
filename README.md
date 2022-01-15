@@ -59,6 +59,7 @@ This guide is structured as follows:
 6. WPML - Multilingual Support
 7. Asset Flags
 8. Preprocessors
+9. Asset Header
 
 <br>
 
@@ -273,6 +274,49 @@ console.log('hello world');
    .element<?php echo $i; ?> { padding: <?php echo $i * 10; ?> }
    <?php endfor; ?>
 </style>
+```
+
+<br>
+
+## Header
+
+An asset may contain a header, that is, a block comment specifying details about the asset, in key-value format. The header should appear first, before any other code. The format of the header is as following:
+
+```
+/*
+ * Key1: Value1
+ * Key2: Value2
+ */
+```
+
+Currently, the only supported Header key is **Depends**, used to inform Enqueueror about the dependencies required by the asset.
+
+### Specifying dependencies
+
+An asset may specify scripts or stylesheets it depends on, by using the **Depends** Header key. Its associated value must contain one or more (comma separated) handles of scripts or stylesheets on which the asset depends. WordPress will enqueue the dependencies before the dependent asset. The dependencies must be either built-in (ex. jquery) or they should be registered by the developer. Dependencies are supported only for external assets, that is, assets whose filename **does not** contain an **.internal** part.
+
+**Specifying a dependency in a script asset**
+
+```javascript
+/*
+ * Requires: jquery
+ */
+
+jQuery(document).ready(function(){
+   console.log('Document is ready');
+});
+```
+
+**Specifying a dependency in a stylesheet asset**
+
+```css
+/*
+ * Requires: wp-block-library-css
+ */
+
+.heading {
+   font-size: 18px;
+}
 ```
 
 <br>
