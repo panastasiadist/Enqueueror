@@ -81,18 +81,25 @@ class Explorer
 
     private function get_language_augmented_asset_name_rules( array $asset_name_rules )
     {
-        if ( class_exists( 'SitePress' ) ) {
-            global $sitepress;
-            $current_langcode = $sitepress->get_current_language();
-
-            $asset_name_rules = array_merge($asset_name_rules, array_map(function( $asset_name_rule ) use ( $current_langcode ) {
-                return new AssetNameRule(
-                    $asset_name_rule->get_name() . '-' . $current_langcode,
-                    $asset_name_rule->get_context(),
-                    $current_langcode
-                );
-            }, $asset_name_rules));
+        if ( ! class_exists( 'SitePress' ) ) {
+            return $asset_name_rules;
         }
+
+        global $sitepress;
+            
+        $current_langcode = $sitepress->get_current_language();
+
+        if ( ! $current_langcode ) {
+            return $asset_name_rules;
+        }
+
+        $asset_name_rules = array_merge($asset_name_rules, array_map(function( $asset_name_rule ) use ( $current_langcode ) {
+            return new AssetNameRule(
+                $asset_name_rule->get_name() . '-' . $current_langcode,
+                $asset_name_rule->get_context(),
+                $current_langcode
+            );
+        }, $asset_name_rules));
 
         return $asset_name_rules;
     }
@@ -260,8 +267,13 @@ class Explorer
         $default_language_object = $object;
 
         global $sitepress;
+        
         $default_langcode = $sitepress->get_default_language();
         $current_langcode = $sitepress->get_current_language();
+
+        if ( ! ( $default_langcode && $current_langcode ) ) {
+            return $default_language_object;
+        }
 
         if ( $object instanceof \WP_Term ) {
             $default_id = apply_filters( 'wpml_object_id', $object->term_id, $object->taxonomy, true, $default_langcode );
