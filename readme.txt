@@ -61,5 +61,10 @@ You may read the guide at [GitHub](https://github.com/panastasiadist/Enqueueror)
 16. Mix of scenarios.
 
 == Changelog ==
+= 1.1.0 =
+* Added: Introduced support for header in assets.
+* Added: Introduced support for asset dependencies.
+* Fixed: Asset order rules not always respected.
+* Fixed: Error if WPML is activated but not set up.
 = 1.0.0 =
 * First release

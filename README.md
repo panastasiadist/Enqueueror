@@ -113,9 +113,7 @@ Enqueueror loads assets' code based on a few rules, taking into account the asse
 ------ Assets in the same directory depth are sorted in ascending order according to their filenames <br>
 -- Current context assets for the current language (for multilingual websites) <br>
 ---- Assets in ascending directory depth (if a subdirectory hierarchy exists) <br>
------- Assets in the same directory depth are sorted in ascending order according to their filenames <br>
-
-*Please keep in mind that when assets' code is loaded using external files, there is no guarantee that their code will be executed according to the aforementioned rules.*
+------ Assets in the same directory depth are sorted in ascending order according to their filenames
 
 <br>
 
