@@ -68,24 +68,29 @@ class Manager
     public static function get_assets_sorted( array $assets )
     {
         // Assets must be already sorted in ascending order, by directory depth and by file name.
-        // So, we only have to sort the assets by type.
+        // So, we only have to group the assets by context and language.
 
-        $global_assets = array_filter($assets, function( $asset ) {
-            return 'global' === $asset->get_context();
-        });
-
-        usort($global_assets, function( $a, $b ) {
-            return $a->get_langcode() === $b->get_langcode() ? 0 : ( 'all' === $a->get_langcode() ? -1 : 1 );
-        });
-
-        $current_assets = array_filter($assets, function( $asset ) {
-            return 'current' === $asset->get_context();
-        });
-
-        usort($current_assets, function( $a, $b ) {
-            return $a->get_langcode() === $b->get_langcode() ? 0 : ( 'all' === $a->get_langcode() ? -1 : 1 );
-        });
+        $global_assets = array();
+        $global_assets_language = array();
+        $current_assets = array();
+        $current_assets_language = array();
         
-        return array_merge( $global_assets, $current_assets );
+        foreach ( $assets as $asset ) {
+            if ( 'global' === $asset->get_context() ) {
+                if ( 'all' === $asset->get_langcode() ) {
+                    $global_assets[] = $asset;
+                } else {
+                    $global_assets_language[] = $asset;
+                }
+            } else {
+                if ( 'all' === $asset->get_langcode() ) {
+                    $current_assets[] = $asset;
+                } else {
+                    $current_assets_language[] = $asset;
+                }
+            }
+        }
+
+        return array_merge( $global_assets, $global_assets_language, $current_assets, $current_assets_language );
     }
 }
