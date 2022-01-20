@@ -5,7 +5,7 @@
  * 
  * Plugin Name:         Enqueueror
  * Description:         Assisted WordPress Asset Preprocessing & Enqueueing
- * Version:             1.1.0
+ * Version:             1.1.1
  * Author:              Panos Anastasiadis
  * Author URI:          https://anastasiadis.me
  * License:             GPLv2 or later

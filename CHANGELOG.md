@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1 - January 19, 2022
+
+### Fixed
+- Handling of multiple dependencies.
+
 ## 1.1.0 - January 15, 2022
 
 ### Added

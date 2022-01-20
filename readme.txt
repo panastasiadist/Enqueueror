@@ -3,7 +3,7 @@ Contributors: panastasiadist
 Tags: theme, development, enqueue, javascript, css, stylesheet, script, wp_enqueue_script
 Requires at least: 4.6
 Tested up to: 5.8
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 Requires PHP: 7.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,8 @@ You may read the guide at [GitHub](https://github.com/panastasiadist/Enqueueror)
 16. Mix of scenarios.
 
 == Changelog ==
+= 1.1.1 =
+* Fixed: Handling of multiple dependencies.
 = 1.1.0 =
 * Added: Introduced support for header in assets.
 * Added: Introduced support for asset dependencies.

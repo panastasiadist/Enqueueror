@@ -152,6 +152,10 @@ class Core
 
         if ( $header && isset( $header[ 'Requires' ] ) ) {
             $dependencies = explode( ',', $header[ 'Requires' ] );
+            $dependencies = array_map( 'trim', $dependencies );
+            $dependencies = array_filter( $dependencies, function( $dependency ) {
+                return $dependency != '';
+            });
         }
 
         return $dependencies;
