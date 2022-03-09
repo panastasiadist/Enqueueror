@@ -2,7 +2,7 @@
 Contributors: panastasiadist
 Tags: theme, development, enqueue, javascript, css, stylesheet, script, wp_enqueue_script
 Requires at least: 4.6
-Tested up to: 5.8
+Tested up to: 5.9
 Stable tag: 1.1.1
 Requires PHP: 7.1
 License: GPLv2 or later
