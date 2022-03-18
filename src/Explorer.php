@@ -122,6 +122,81 @@ class Explorer
         }
     }
 
+    private function get_asset_for_file_info_structure(
+        array $structure, 
+        string $asset_type, 
+        string $directory_path, 
+        array $extensions)
+    {
+        $extensions = array_map(function($extension) {
+            return '.' !== mb_substr( $extension, 0, 1 ) ? '.' . $extension : $extension;
+        }, $extensions);
+
+        // Sort the extensions, so the more lengthy come first.
+        usort($extensions, function( $a, $b ) {
+            return mb_strlen( $b ) - mb_strlen( $a );
+        });
+
+        $extension = '';
+        $filename_with_flags = '';
+
+        foreach ( $extensions as $ext ) {
+            $basename = $structure[ 'basename' ];
+            $basename_length = mb_strlen( $basename );
+            $extension_length = mb_strlen( $ext );
+                
+            if ( mb_substr( $basename, $basename_length - $extension_length ) == $ext ) {
+                $extension = mb_substr( $ext, 1 );
+                $filename_with_flags = mb_substr( $basename, 0, $basename_length - mb_strlen( $extension ) - 1 );
+                break;
+            }
+        }
+
+        $flags = explode( '.', $filename_with_flags );
+
+        $filename_without_flags = $flags[0];
+
+        // If the array contains one item, then no dots found in the file name, so no flags present. The one item 
+        // returned is the file name.
+        $flags = ( count( $flags ) == 1 ) ? array() : array_slice( $flags, 1 );
+
+        $langcode = 'all';
+
+        if ( class_exists( 'SitePress' ) ) {
+            global $sitepress;
+            
+            $current_langcode = $sitepress->get_current_language();
+
+            if ( $current_langcode ) {
+                $langcode_suffix = '-' . $current_langcode;
+                $langcode_suffix_length = mb_strlen( $langcode_suffix );
+                if ( $langcode_suffix === mb_substr( $filename_without_flags, -$langcode_suffix_length ) ) {
+                    $langcode = $current_langcode;
+                }
+            }
+        }
+
+        $context = 'current';
+
+        if ( 'global' === $filename_without_flags ) {
+            $context = 'global';
+        }
+
+        $absolute_filepath = $structure[ 'dirname' ] . DIRECTORY_SEPARATOR . $structure[ 'basename' ];
+        $relative_filepath = str_replace( $directory_path, '', $absolute_filepath );
+
+        return new Asset(
+            $asset_type,
+            $extension,
+            $absolute_filepath,
+            $relative_filepath,
+            $filename_with_flags,
+            $context,
+            $langcode,
+            $flags
+        );
+    }
+
     /**
      * Searches the filesystem for available asset files returning an array of Asset instances.
      *
@@ -150,77 +225,51 @@ class Explorer
 
         $extension_regex = str_replace( '.', '\.', implode( '|', $extensions ) );
 
-        $asset_name_to_asset_name_rule = array_reduce($asset_name_rules, function( $map, $asset_name_rule ) {
-            $map[ $asset_name_rule->get_name() ] = $asset_name_rule;
-            return $map;
-        }, array());
+        $asset_names = array_map(function( $asset_name_rule ) {
+            return $asset_name_rule->get_name();
+        }, $asset_name_rules);
 
-        $filenames_regex = implode( '|', array_keys( $asset_name_to_asset_name_rule ) );
+        $filenames_regex = implode( '|', $asset_names );
         $filenames_regex = str_replace( '.', '\.', $filenames_regex );
         $filename_regex = "/^($filenames_regex)(\.[a-zA-Z0-9\-_\.]*)?($extension_regex)$/";
 
         $assets = array();
 
-        // Sort the extensions, so the more lengthy come first.
-        usort($extensions, function( $a, $b ) {
-            return mb_strlen( $b ) - mb_strlen( $a );
-        });
-
         foreach ( $this->get_file_info_structures( $directory_path, $filename_regex ) as $structure ) {
-            $extension = '';
-            $filename_with_flags = '';
-
-            foreach ( $extensions as $ext ) {
-                $basename = $structure[ 'basename' ];
-                $basename_length = mb_strlen( $basename );
-                $extension_length = mb_strlen( $ext );
-                
-                if ( mb_substr( $basename, $basename_length - $extension_length ) == $ext ) {
-                    $extension = mb_substr( $ext, 1 );
-                    $filename_with_flags = mb_substr( $basename, 0, $basename_length - mb_strlen( $extension ) - 1 );
-                    break;
-                }
-            }
-
-            $flags = explode( '.', $filename_with_flags );
-
-            $filename_without_flags = $flags[0];
-
-            // If the array contains one item, then no dots found in the file name, so no flags present. The one item 
-            // returned is the file name.
-            $flags = ( count( $flags ) == 1 ) ? array() : array_slice( $flags, 1 );
-
-            $asset_name_rule = null;
-
-            if ( isset( $asset_name_to_asset_name_rule[ $filename_without_flags ] ) ) {
-                $asset_name_rule = $asset_name_to_asset_name_rule[ $filename_without_flags ];
-            } else {
-                foreach ( $asset_name_to_asset_name_rule as $asset_name => $instance ) {
-                    if ( preg_match( "/^$asset_name$/", $filename_without_flags ) ) {
-                        $asset_name_rule = $instance;
-                    }
-                }
-            }
-
-            // Normally every filename without flags should be available in the following associative array, as each 
-            // filename found is linked to the asset names from which this associative array was built. However, if that 
-            // is not the case, a bug should exist or who knows.
-            if ( ! $asset_name_rule ) {
-                throw new \Exception("File '$filename_without_flags' not applicable to requested assets with regex '$filename_regex'");
-            }
-
-            $assets[] = new Asset(
-                $asset_type, 
-                $extension, 
-                $structure[ 'dirname' ] . DIRECTORY_SEPARATOR . $structure[ 'basename' ], 
-                $filename_with_flags, 
-                $asset_name_rule->get_context(),
-                $asset_name_rule->get_langcode(),
-                $flags
-            );
+            $assets[] = $this->get_asset_for_file_info_structure( $structure, $asset_type, $directory_path, $extensions );
         }
 
         return $assets;
+    }
+
+    /**
+     * Returns an Asset instance given an asset's filesystem path within the directory setup for the given asset type.
+     *
+     * @param string $filepath The absolute/relative filesystem path to an asset. If a relative path is given, then the 
+     * path must start with a '/' and it must be relative to the directory containing assets of type $asset_type.
+     * @param string $asset_type The type of the asset designated by the filesystem path given.
+     * @return Asset The Asset instance for the requested asset or false on failure. 
+     * @throws Exception Thrown if $asset_type is not supported.
+     */
+    public function get_asset_for_filepath( string $filepath, string $asset_type )
+    {
+        if ( isset( $this->asset_type_to_directory_path[ $asset_type ] ) ) {
+            $directory_path = $this->asset_type_to_directory_path[ $asset_type ];
+        } else {
+            throw new \Exception( "No asset directory registered for '$asset_type' asset type" );
+        }
+
+        if ( isset( $this->asset_type_to_supported_extensions[ $asset_type ] ) ) {
+            $extensions = $this->asset_type_to_supported_extensions[ $asset_type ];
+        } else {
+            throw new \Exception( "No extensions registered for '$asset_type' asset type" );
+        }
+
+        $filepath = $directory_path . $filepath;
+
+        $structure = pathinfo( $filepath );
+
+        return $this->get_asset_for_file_info_structure( $structure, $asset_type, $directory_path, $extensions );
     }
 
     public function get_assets_global( string $asset_type )

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace panastasiadist\Enqueueror;
 
+use __PHP_Incomplete_Class;
 use panastasiadist\Enqueueror\Base\Asset;
 use panastasiadist\Enqueueror\Flags\Source as SourceFlag;
 use panastasiadist\Enqueueror\Flags\Location as LocationFlag;
@@ -92,10 +93,10 @@ class Core
      */
     private function output_assets( $assets )
     {
-        static $handle_to_occurence_count = null;
+        static $enqueued_asset_handles = null;
 
-        if ( null === $handle_to_occurence_count ) {
-            $handle_to_occurence_count = array();
+        if ( null === $enqueued_asset_handles ) {
+            $enqueued_asset_handles = array();
         }
 
         foreach ( $assets as $asset ) {
@@ -103,19 +104,8 @@ class Core
             $source = SourceFlag::get_value_for_asset( $asset, 'external' );
             $location = LocationFlag::get_value_for_asset( $asset, 'head' );
 
-            // $filepath = $asset->get_filepath();
-            // $this->logger->debug( "Processing asset '$filepath'" );
-
             if ( 'external' == $source ) {
-                $handle = $asset->get_filename();
-
-                if ( ! isset( $handle_to_occurence_count[ $handle ] ) ) {
-                    $handle_to_occurence_count[ $handle ] = 1;
-                } else {
-                    $handle_to_occurence_count[ $handle ] += 1;
-                    $handle .= '-' . $handle_to_occurence_count[ $handle ];
-                }
-
+                $handle = $asset->get_relative_filepath();
                 $file_path = $this->get_processed_asset_filepath( $asset, $handle );
 
                 if ( false === $file_path ) {
@@ -123,12 +113,36 @@ class Core
                 }
 
                 $file_url = $this->get_url_from_path( $file_path );
-                $dependencies = $this->get_asset_dependencies( $asset );
 
-                if ( 'scripts' == $type ) {
-                    wp_enqueue_script( $handle, $file_url, $dependencies, filemtime( $file_path ), 'footer' == $location );
-                } elseif ( 'stylesheets' == $type ) {
-                    wp_enqueue_style( $handle, $file_url, $dependencies, filemtime( $file_path ) );
+                $dependencies = array();
+                $dependencies_assets = array();
+
+                foreach ( $this->get_asset_dependencies( $asset ) as $dependency ) {
+                    $dependencies[] = $dependency;
+
+                    // Check if the dependency is an asset and act accordingly.
+                    if ( 0 === mb_strpos( $dependency, '/' ) ) {
+                        // Asset dependency.
+                        $dependency_asset = $this->explorer->get_asset_for_filepath( $dependency, $type );
+                        $dependency_asset_source = SourceFlag::get_value_for_asset( $dependency_asset, 'external' );
+
+                        if ( 'external' == $dependency_asset_source ) {
+                            // Only external assets are supported, so they are able to be enqueued and be part of WordPress dependency resolution.
+                            $dependencies_assets[] = $dependency_asset;
+                        }
+                    }
+                }
+
+                $this->output_assets( $dependencies_assets );
+
+                if ( ! in_array( $handle, $enqueued_asset_handles ) ) {
+                    if ( 'scripts' == $type ) {
+                        wp_enqueue_script( $handle, $file_url, $dependencies, filemtime( $file_path ), 'footer' == $location );
+                        $enqueued_asset_handles[] = $handle;
+                    } elseif ( 'stylesheets' == $type ) {
+                        wp_enqueue_style( $handle, $file_url, $dependencies, filemtime( $file_path ) );
+                        $enqueued_asset_handles[] = $handle;
+                    }
                 }
             } elseif ( 'internal' == $source ) {
                 $file_path = $this->get_processed_asset_filepath( $asset );
@@ -175,7 +189,7 @@ class Core
             return false;
         }
 
-        if ( '' !== $store_as_filename && $processed_file_path !== $asset->get_filepath() ) {
+        if ( '' !== $store_as_filename && $processed_file_path !== $asset->get_absolute_filepath() ) {
             $store_extension = $asset->get_type() === 'scripts' ? 'js' : 'css';
 
             $processed_file_path = $this->store_processed_file(
@@ -201,7 +215,20 @@ class Core
 
     private function store_processed_file( string $name, string $path, string $extension ) 
     {
-        $serve_dir = WP_CONTENT_DIR . '/infse/serve';
+        $serve_dir = WP_CONTENT_DIR . '/enqueueror';
+
+        $name_parts = explode( '/', $name );
+
+        $name_parts = array_filter($name_parts, function( $name_part ) {
+            return '' != $name_part;
+        });
+
+        if ( count( $name_parts ) > 1 ) {
+            $serve_dir .= '/' . implode( '/', array_slice( $name_parts, 0, -1 ) );
+        }
+
+        $name = end( $name_parts );
+
         $hash_separator = '-';
 
         if ( false === wp_mkdir_p( $serve_dir ) ) {

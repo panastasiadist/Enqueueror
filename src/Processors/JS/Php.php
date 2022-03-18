@@ -38,12 +38,12 @@ class Php extends Processor
      */
     public static function get_processed_filepath( Asset $asset )
     {
-        if ( is_readable( $asset->get_filepath() ) ) {
+        if ( is_readable( $asset->get_absolute_filepath() ) ) {
             $file_path = tempnam( sys_get_temp_dir(), 'infse' );
 
             if ( false !== $file_path ) {
                 ob_start();
-                require_once( $asset->get_filepath() );
+                require_once( $asset->get_absolute_filepath() );
                 $buffer = ob_get_clean();
 
                 $buffer = preg_replace( '/<\/?script.*>/', '', $buffer );

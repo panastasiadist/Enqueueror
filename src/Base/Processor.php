@@ -36,22 +36,23 @@ class Processor
      */
     public static function get_processed_filepath( Asset $asset )
     {
-        if ( is_readable( $asset->get_filepath() ) ) {
-            return $asset->get_filepath();
+        if ( is_readable( $asset->get_absolute_filepath() ) ) {
+            return $asset->get_absolute_filepath();
         }
 
         return false;
     }
 
     /**
-     * Undocumented function
+     * Return header values for an asset.
      *
-     * @param string $filepath
-     * @return string|false
+     * @param Asset $asset An Asset instance of an asset file to return its header values.
+     * @return array An associative array containing name:value pairs found in the header section of the asset's file.
+     * Empty if no header section or no header values are specified in the asset's file.
      */
     public static function get_header_values( Asset $asset )
     {
-        $content = file_get_contents( $asset->get_filepath() );
+        $content = file_get_contents( $asset->get_absolute_filepath() );
 
         if ( false === $content ) {
             return false;
@@ -77,7 +78,7 @@ class Processor
         foreach ( $lines as $line ) {
             $matches = array();
 
-            if ( preg_match( '/([\w]+)\h*:\h*([\w\-\h,]+)/', $line, $matches ) ) {
+            if ( preg_match( '/([\w]+)\h*:\h*([\w\-\h\/\.,]+)/', $line, $matches ) ) {
                 $name = $matches[1];
                 $value = $matches[2];
                 $fields[ $name ] = $value;

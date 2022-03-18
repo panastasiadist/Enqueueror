@@ -10,7 +10,8 @@ class Asset
 {
     private $type = '';
     private $extension = '';
-    private $filepath = '';
+    private $absolute_filepath = '';
+    private $relative_filepath = '';
     private $basename = '';
     private $filename = '';
     private $context = 'current';
@@ -20,14 +21,16 @@ class Asset
     /**
      * @param string $type The asset's type.
      * @param string $extension The physical or composite, processor supported extension of the asset's file.
-     * @param string $filepath The absolute filesystem path to the asset's file.
+     * @param string $absolute_filepath The absolute filesystem path to the asset's file.
+     * @param string $relative_filepath The filesystem path to the asset's file relatively to asset's root directory.
      * @param string $filename The asset's file name without its extension.
      * @param string $language The asset's targeted language code. Valid values are 'all' or a language code.
      */
     public function __construct(
         string $type, 
         string $extension, 
-        string $filepath, 
+        string $absolute_filepath, 
+        string $relative_filepath, 
         string $filename, 
         string $context,
         string $langcode,
@@ -35,12 +38,13 @@ class Asset
     {
         $this->type = $type;
         $this->extension = $extension;
-        $this->filepath = $filepath;
+        $this->absolute_filepath = $absolute_filepath;
+        $this->relative_filepath = $relative_filepath;
         $this->filename = $filename;
         $this->context = $context;
         $this->langcode = $langcode;
         $this->flags = $flags;
-        $this->basename = basename( $filepath );
+        $this->basename = basename( $absolute_filepath );
     }
 
     /**
@@ -70,9 +74,19 @@ class Asset
      * 
      * @return string
      */
-    public function get_filepath() 
+    public function get_absolute_filepath() 
     {
-        return $this->filepath;
+        return $this->absolute_filepath;
+    }
+
+    /**
+     * Returns the filesystem path to the asset's file, relatively to assets' root directory.
+     * 
+     * @return string
+     */
+    public function get_relative_filepath() 
+    {
+        return $this->relative_filepath;
     }
 
     /**
