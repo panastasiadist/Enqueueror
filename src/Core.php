@@ -116,13 +116,17 @@ class Core
 
                 $dependencies = array();
                 $dependencies_assets = array();
+                $dependencies_urls = array();
 
                 foreach ( $this->get_asset_dependencies( $asset ) as $dependency ) {
                     $dependencies[] = $dependency;
 
-                    // Check if the dependency is an asset and act accordingly.
-                    if ( 0 === mb_strpos( $dependency, '/' ) ) {
-                        // Asset dependency.
+                    $http = 0 === mb_strpos( $dependency, 'http://' ) || 0 === mb_strpos( $dependency, 'https://' );
+
+                    if ( $http && filter_var( $dependency, FILTER_VALIDATE_URL ) ) {
+                        $dependencies_urls[] = $dependency;
+                    } else if ( 0 === mb_strpos( $dependency, '/' ) ) {
+                        // Check if the dependency is an asset and act accordingly.
                         $dependency_asset = $this->explorer->get_asset_for_filepath( $dependency, $type );
                         $dependency_asset_source = SourceFlag::get_value_for_asset( $dependency_asset, 'external' );
 
@@ -134,6 +138,18 @@ class Core
                 }
 
                 $this->output_assets( $dependencies_assets );
+
+                foreach ( $dependencies_urls as $dependency_url ) {
+                    if ( ! in_array( $dependency_url, $enqueued_asset_handles ) ) {
+                        if ( 'scripts' == $type ) {
+                            wp_enqueue_script( $dependency_url, $dependency_url, array(), false, 'footer' == $location );
+                            $enqueued_asset_handles[] = $dependency_url;
+                        } elseif ( 'stylesheets' == $type ) {
+                            wp_enqueue_style( $dependency_url, $dependency_url );
+                            $enqueued_asset_handles[] = $dependency_url;
+                        }
+                    }
+                }
 
                 if ( ! in_array( $handle, $enqueued_asset_handles ) ) {
                     if ( 'scripts' == $type ) {

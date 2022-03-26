@@ -58,8 +58,9 @@ This guide is structured as follows:
    - Current Context Assets
 6. WPML - Multilingual Support
 7. Asset Flags
-8. Preprocessors
+8. PHP Preprocessors
 9. Asset Header
+10. Asset Dependencies
 
 <br>
 
@@ -211,12 +212,14 @@ Asset Types/Extensions|Location Flag|Compatible Source Flags
 
 ## PHP Preprocessors
 
-Enqueueror supports the concept of asset preprocessors acting similarly to SASS or LESS but using the PHP programming language. That means that you are able to use PHP code to produce CSS or JavaScript code to be used by a website.
+Enqueueror supports the concept of asset preprocessors acting similarly to SASS or LESS but using the PHP programming language. That means that you are able to use PHP code to produce CSS or JavaScript code to be used by a website. The preprocessed versions of the assets are served from **wp-content/uploads/enqueueror**. The assets are stored by reproducing the subdirectory hierarchy containing them.
 
 ### How to use the PHP Preprocessor for JavaScript
 - Create assets using the rules and naming conventions already mentioned using the **.js.php** file extension.
 - Implement PHP code which outputs valid JavaScript code or use PHP as a template language getting in or out of the PHP execution context using the **```<?php```** and **```?>```** tags as required.
 - You may optionally use **```<script>```** tag when not in the PHP execution context.
+
+Examples:
 
 **Example of plain JavaScript code without utilizing PHP**
 
@@ -247,6 +250,8 @@ console.log('hello world');
 - Create assets using the rules and naming conventions already mentioned using the **.css.php** file extension.
 - Implement PHP code which outputs valid CSS code in the same manner as for JavaScript code.
 - You may optionally use **```<style>```** tag when not in the PHP execution context.
+
+Examples:
 
 **Example of plain CSS code without utilizing PHP**
 
@@ -287,13 +292,23 @@ An asset may contain a header, that is, a block comment specifying details about
  */
 ```
 
-Currently, the only supported Header key is **Depends**, used to inform Enqueueror about the dependencies required by the asset.
+Currently, the only supported Header key is **Requires**, used to inform Enqueueror about the dependencies required by the asset.
 
-### Specifying dependencies
+<br>
 
-An asset may specify scripts or stylesheets it depends on, by using the **Depends** Header key. Its associated value must contain one or more (comma separated) handles of scripts or stylesheets on which the asset depends. WordPress will enqueue the dependencies before the dependent asset. The dependencies must be either built-in (ex. jquery) or they should be registered by the developer. Dependencies are supported only for external assets, that is, assets whose filename **does not** contain an **.internal** part.
+## Dependencies
 
-**Specifying a dependency in a script asset**
+An asset may specify scripts or stylesheets it depends on by using the **Requires** Header key. The key's associated value should contain one or more, comma separated handles, relative paths to local script/stylesheet resources, or URLs to external scripts or stylesheets. WordPress will enqueue the dependencies before the dependent asset, provided that no other code intervenes in this process (ex. optimization plugins). 
+
+*Note: Dependencies are supported only for external assets.*
+
+### Using handles to specify dependencies
+
+WordPress features a mechanism used to enqueue scripts and stylesheets to be loaded in the requested order. Each script or stylesheet made available using this mechanism, is characterized by a unique name, that is, a "handle" associated only with the URL of the resource. These handles (names) allow WordPress to load specific resources before other resources making use of the former. Enqueueror makes use of these WordPress facilities to enable an asset to "require", that is, to inform WordPress about other scripts/stylesheets it depends on, using the handles assigned to them. 
+
+A resource/handle may be specified by WordPress itself (such as jQuery - handle: jquery) or by third-party code. An asset may require dependencies by specifying their unique names, that is, by specifying their handles. However, only existent handles should be used as dependencies. 
+
+**Specifying a dependency in a script asset using a handle**
 
 ```javascript
 /*
@@ -305,17 +320,145 @@ jQuery(document).ready(function(){
 });
 ```
 
-**Specifying a dependency in a stylesheet asset**
+**Specifying a dependency in stylesheet asset using a handle**
 
 ```css
 /*
  * Requires: wp-block-library-css
  */
 
+.block {
+   padding: 10px;
+}
+```
+
+*Note: If non-existent handles are used, the dependent asset won't be loaded by WordPress.*
+
+### Using local resource paths to specify dependencies
+
+Scripts and stylesheets located under the asset root directories of Enqueueror, support requiring other (local) scripts and stylesheets (respectively) located under the aforementioned asset root directories. 
+
+To specify local scripts or stylesheets as dependencies, one should specify their path relative to their respective asset root directory, starting with a slash (/). If the local script/stylesheet specified by the relative path does not exist, the dependent asset won't be loaded by WordPress. 
+
+Examples:
+
+**Specifying a dependency in a script asset using a local .js file**
+
+```javascript
+/*
+ * Requires: /requirement1.js
+ */
+
+call_function_implemented_in_requirement1(); // /requirement1.js
+```
+
+**Specifying a dependency in a script asset using a local PHP preprocessed .js.php file**
+
+```javascript
+/*
+ * Requires: /requirement2.js.php
+ */
+
+call_function_implemented_in_requirement2(); // /requirement2.js.php
+```
+
+**Specifying a dependency in a stylesheet asset using a local .css file**
+
+```css
+/*
+ * Requires: /requirement1.css
+ */
+
+.heading1 {
+   font-size: 18px;
+}
+```
+
+**Specifying a dependency in a stylesheet asset using a local PHP preprocessed .css.php file**
+
+```css
+/*
+ * Requires: /requirement2.css.php
+ */
+
+.heading2 {
+   font-size: 18px;
+}
+```
+
+*Notes:*
+- *Only external assets may be used as dependencies.*
+- *If a dependency asset intented for the <body> (footer) HTML section is used by a dependent asset intented for the <head> HTML section, then the dependency asset will be loaded in the <head> HTML section, before the dependent asset.*
+- *If the dependency file specified by the relative path does not exist, the dependent asset will not be loaded by WordPress.*
+
+### Using URL based resources to specify dependencies
+
+To specify external scripts or stylesheets as dependencies, their URLs may be used as following:
+
+**Specifying a dependency in a script asset using a URL to a script file**
+
+```javascript
+/*
+ * Requires: https://cdn.example.com/script.js
+ */
+
+call_function_implemented_in_cdn_script(); // https://cdn.example.com/script.js
+```
+
+**Specifying a dependency in a stylesheet asset using a URL to a stylesheet file**
+
+```javascript
+/*
+ * Requires: https://cdn.example.com/style.css
+ */
+
+.heading1 {
+   font-size: 18px;
+}
+```
+
+*Note: If a URL does not result to a script or stylesheet (for example a not-found error is encountered), the dependent asset will be loaded by WordPress but it may fail to run properly.*
+
+### Specifying multiple dependencies for an asset
+
+Multiple dependencies may be specified for an asset using the comma (,) character to separate the dependencies. The dependencies may be a mix of handles, local script/stylesheet files or URL based script/stylesheet files. 
+
+Examples:
+
+**Specifying multiple dependencies in a script asset**
+
+```javascript
+/*
+ * Requires: jquery, /requirement1.js, /requirement2.js.php, https://cdn.example.com/script.js
+ */
+
+// provided by the jQuery script represented by jquery handle
+jQuery(document).ready(function(){
+   call_function_implemented_in_requirement1(); // /requirement1.js
+   call_function_implemented_in_requirement2(); // /requirement2.js.php
+   call_function_implemented_in_url_script(); // https://cdn.example.com/script.js
+});
+```
+
+**Specifying multiple dependencies in a stylesheet asset**
+
+```css
+/*
+ * Requires: wp-block-library-css, /requirement1.css, /requirement2.css.php, https://cdn.example.com/style.css
+ */
+
 .heading {
    font-size: 18px;
 }
 ```
+
+### Chain of dependencies and caveats
+
+It is possible that an asset's dependencies depend on other dependencies and so on, resulting in a chain of dependencies. Provided that a. all dependencies exist, b. there are no circular dependencies, c. no third party code intervenes in WordPress enqueueing mechanism, all dependencies will be loaded in the correct order.
+
+In addition, it is possible that two or more dependents, require the same dependencies. This scenario is also supported, ultimatelly resulting in the common dependencies to be loaded before the dependent assets.
+
+However, when specifying dependencies, the developer should be careful to avoid any circular dependencies as following: A requires B, B requires C, C requires A. This is a case of circular dependency which will result in WordPress halting with an error.
 
 <br>
 

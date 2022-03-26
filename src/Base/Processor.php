@@ -78,7 +78,7 @@ class Processor
         foreach ( $lines as $line ) {
             $matches = array();
 
-            if ( preg_match( '/([\w]+)\h*:\h*([\w\-\h\/\.,]+)/', $line, $matches ) ) {
+            if ( preg_match( '/([\w]+)\h*:(.+)/', $line, $matches ) ) {
                 $name = $matches[1];
                 $value = $matches[2];
                 $fields[ $name ] = $value;
