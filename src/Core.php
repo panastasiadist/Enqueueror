@@ -231,7 +231,7 @@ class Core
 
     private function store_processed_file( string $name, string $path, string $extension ) 
     {
-        $serve_dir = WP_CONTENT_DIR . '/enqueueror';
+        $serve_dir = WP_CONTENT_DIR . '/uploads/enqueueror';
 
         $name_parts = explode( '/', $name );
 
