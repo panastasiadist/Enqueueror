@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace panastasiadist\Enqueueror;
 
-use __PHP_Incomplete_Class;
 use panastasiadist\Enqueueror\Base\Asset;
 use panastasiadist\Enqueueror\Flags\Source as SourceFlag;
 use panastasiadist\Enqueueror\Flags\Location as LocationFlag;
+use panastasiadist\Enqueueror\Utilities\Htaccess as HtaccessUtility;
 
 class Core
 {
@@ -26,7 +26,7 @@ class Core
      */
     private $extension_to_processor = array();
 
-    public function __construct()
+    public function __construct( string $plugin_file )
     {
         $type_to_extensions = array();
 
@@ -58,6 +58,10 @@ class Core
         add_action( 'wp_enqueue_scripts', array( $this, 'output_enqueueable' ) );
         add_action( 'wp_head', array( $this, 'output_head_printed' ) );
         add_action( 'get_footer', array( $this, 'output_footer' ) );
+        add_action( 'switch_theme', array( HtaccessUtility::class, 'write' ), 10, 0 );
+
+        register_activation_hook( $plugin_file, array( HtaccessUtility::class, 'write' ) );
+        register_deactivation_hook( $plugin_file, array( HtaccessUtility::class, 'delete' ) );
     }
 
     /**

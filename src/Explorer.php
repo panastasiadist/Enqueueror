@@ -113,6 +113,11 @@ class Explorer
             $assets_directory_path . DIRECTORY_SEPARATOR . self::STYLESHEETS_DIRECTORY_NAME;
     }
 
+    public function get_asset_directory_paths()
+    {
+        return $this->asset_type_to_directory_path;
+    }
+
     public function register_asset_extensions( string $asset_type, array $extensions )
     {
         if ( isset( $this->asset_type_to_supported_extensions[ $asset_type ] ) ) {

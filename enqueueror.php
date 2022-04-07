@@ -15,6 +15,8 @@
  * Requires PHP:        7.1
  */
 
+defined( 'ABSPATH' ) || exit;
+
 require_once( plugin_dir_path( __FILE__ ) . '/vendor/autoload.php' );
 
-$core = new \panastasiadist\Enqueueror\Core();
+new \panastasiadist\Enqueueror\Core( __FILE__ );
