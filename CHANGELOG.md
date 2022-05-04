@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.0 - May 04, 2022
+
+### Added
+- Local assets and external script and stylesheets may be used as dependencies.
+- Direct access to PHP preprocessed assets is prevented using .htaccess rules.
+
+### Changed
+- Preprocessed assets are now served from /wp-content/uploads/enqueueror.
+
 ## 1.1.1 - January 19, 2022
 
 ### Fixed

@@ -1,33 +1,62 @@
-# Enqueueror - Assisted WordPress Asset Preprocessing & Enqueueing
+![Enqueueror](https://ps.w.org/enqueueror/assets/banner-1544x500.png)
 
 Enqueueror assists WordPress developers with the development of content-specific JavaScript & CSS code, through the use of file naming conventions and a bunch of convenient features which augment their code development workflow.
 
+---
+
+# Table of Contents<!-- omit in toc -->
+
+- [Usage](#usage)
+- [Quick Start Examples](#quick-start-examples)
+- [Guide](#guide)
+  - [Required directory structure](#required-directory-structure)
+  - [Types of assets](#types-of-assets)
+  - [Asset contexts](#asset-contexts)
+  - [Filename conventions for assets](#filename-conventions-for-assets)
+    - [Global context assets](#global-context-assets)
+    - [Current context assets](#current-context-assets)
+  - [Loading order of assets](#loading-order-of-assets)
+  - [WPML - Multilingual Support](#wpml---multilingual-support)
+  - [Flags](#flags)
+  - [PHP preprocessors](#php-preprocessors)
+    - [How to use the PHP preprocessor for JavaScript](#how-to-use-the-php-preprocessor-for-javascript)
+    - [How to use the PHP preprocessor for CSS](#how-to-use-the-php-preprocessor-for-css)
+    - [Preventing security or performance issues](#preventing-security-or-performance-issues)
+  - [Header](#header)
+  - [Dependencies](#dependencies)
+    - [Using handles to specify dependencies](#using-handles-to-specify-dependencies)
+    - [Using local resource paths to specify dependencies](#using-local-resource-paths-to-specify-dependencies)
+    - [Using URL based resources to specify dependencies](#using-url-based-resources-to-specify-dependencies)
+    - [Specifying multiple dependencies for an asset](#specifying-multiple-dependencies-for-an-asset)
+    - [Chain of dependencies and caveats](#chain-of-dependencies-and-caveats)
+- [Acknowledgments](#acknowledgments)
+
 # Usage
 
-### 1. Install Enqueueror
+### 1. Install Enqueueror<!-- omit in toc -->
 You may install the plugin from the [WordPress Plugin Repository](https://wordpress.org/plugins/enqueueror/).
 
-### 2. Create the required directories
+### 2. Create the required directories<!-- omit in toc -->
 Enqueueror requires the **scripts** and **stylesheets** directories to be present in the root directory of the active parent/child theme, depending on which theme is the active one.
 
-### 3. Try the Quick Start Examples or consult the Guide
+### 3. Try the Quick Start Examples or consult the Guide<!-- omit in toc -->
 The Quick Start Examples should get you up and running in no time. The Guide will help you to get the most out of Enqueueror.
 
 # Quick Start Examples
 
-### Load a stylesheet globally, irrespectively of the content requested.
+### Load a stylesheet globally, irrespectively of the content requested.<!-- omit in toc -->
 Code a CSS file named **global.css** in the **stylesheets** directory.
 
-### Load a stylesheet only when viewing the page with id = 1
+### Load a stylesheet only when viewing the page with id = 1<!-- omit in toc -->
 Code a CSS file named **type-page-id-1.css** or **type-id-1.css** in the **stylesheets** directory.
 
-### Load a stylesheet only when viewing the page with slug = 'example-page'
+### Load a stylesheet only when viewing the page with slug = 'example-page'<!-- omit in toc -->
 Code a CSS file named **type-page-slug-example-page.css** or **type-slug-example-page.css** in the **stylesheets** directory.
 
-### Load a stylesheet only when viewing the category term with id = 1
+### Load a stylesheet only when viewing the category term with id = 1<!-- omit in toc -->
 Code a CSS file named **tax-category-term-id-1.css** or **term-id-1.css** in the **stylesheets** directory.
 
-### Load a stylesheet only when viewing the category term with slug = 'category1'
+### Load a stylesheet only when viewing the category term with slug = 'category1'<!-- omit in toc -->
 Code a CSS file named **tax-category-term-slug-category1.css** or **term-slug-category1.css** in the **stylesheets** directory.
 
 # Guide
@@ -37,28 +66,6 @@ Enqueueror enables developers to organize script and stylesheet assets in the **
 * Different ways of loading an asset's code by utilizing **Flags**.
 * Support for WPML based multilingual websites.
 * Support for asset dependencies.
-
-This guide is structured as follows:
-1. Required directory structure
-2. Types of assets
-3. Asset contexts
-4. Filename conventions for assets
-      - Global context assets
-      - Current context assets
-5. Loading order of assets
-6. WPML - Multilingual Support
-7. Flags
-8. PHP preprocessors
-      - How to use the PHP preprocessor for JavaScript
-      - How to use the PHP preprocessor for CSS
-9. Header
-10. Dependencies
-      - Using handles to specify dependencies
-      - Using local resource paths to specify dependencies
-      - Using URL based resources to specify dependencies
-      - Specifying multiple dependencies for an asset
-      - Chain of dependencies and caveats
-11. Acknowledgments
 
 ## Required directory structure
 
