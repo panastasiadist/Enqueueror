@@ -1,6 +1,6 @@
 # Enqueueror - Assisted WordPress Asset Preprocessing & Enqueueing
 
-Enqueueror facilitates WordPress developers with the development of content-specific JavaScript & CSS code, through the use of file naming conventions and a bunch of convenient features which augment their code development workflow.
+Enqueueror assists WordPress developers with the development of content-specific JavaScript & CSS code, through the use of file naming conventions and a bunch of convenient features which augment their code development workflow.
 
 # Usage
 
@@ -8,10 +8,10 @@ Enqueueror facilitates WordPress developers with the development of content-spec
 You may install the plugin from the [WordPress Plugin Repository](https://wordpress.org/plugins/enqueueror/).
 
 ### 2. Create the required directories
-Enqueueror requires the **scripts** and **stylesheets** directories in the root directory of the active parent/child theme, depending on which theme is the active one.
+Enqueueror requires the **scripts** and **stylesheets** directories to be present in the root directory of the active parent/child theme, depending on which theme is the active one.
 
 ### 3. Try the Quick Start Examples or consult the Guide
-The Quick Start Examples should get you up and running in no time. The Guide will help you get the most out of Enqueueror.
+The Quick Start Examples should get you up and running in no time. The Guide will help you to get the most out of Enqueueror.
 
 # Quick Start Examples
 
@@ -32,13 +32,13 @@ Code a CSS file named **tax-category-term-slug-category1.css** or **term-slug-ca
 
 # Guide
 
-Enqueueror enables developers to organize script and stylesheet assets in the **scripts** and **stylesheets** directories, respectively, located in the root directory of the parent/child theme. By making use of file naming conventions, Enqueueror is able to infer the assets applicable to the requested content. However, Enqueueror builds upon this concept, providing WordPress developers with tools which augment JavaScript & CSS code development and delivery as following:
+Enqueueror enables developers to organize script and stylesheet assets in the **scripts** and **stylesheets** directories, respectively, located under the root directory of the parent/child theme. By making use of file naming conventions, Enqueueror is able to infer the assets applicable to the requested content. However, Enqueueror builds upon this concept, providing WordPress developers with tools which augment JavaScript & CSS code development and delivery as follows:
 * Usage of PHP as a preprocessor to produce script/stylesheet code.
 * Different ways of loading an asset's code by utilizing **Flags**.
 * Support for WPML based multilingual websites.
 * Support for asset dependencies.
 
-This guide is structured as following:
+This guide is structured as follows:
 1. Required directory structure
 2. Types of assets
 3. Asset contexts
@@ -62,7 +62,7 @@ This guide is structured as following:
 
 ## Required directory structure
 
-Enqueueror requires the **scripts** and **stylesheets** directories to be created in the active theme's root directory. If a child theme is in use, then its directory is considered the root directory, that is, the required directories should be created in the root directory of the child theme. In addition, Enqueueror allows for arbitrary subdirectories under the required asset directories, resembling the following directory structure:
+Enqueueror requires the **scripts** and **stylesheets** directories to be created under the active theme's root directory. If a child theme is in use, then its directory is considered the root directory. In addition, Enqueueror allows for arbitrary subdirectories under the required asset directories, resembling the following directory structure:
 
 > `<installation_directory>/wp-content/themes/<theme_directory>` <br>
 -- `scripts` (required if using script assets) <br>
@@ -75,10 +75,10 @@ Developers may create an arbitrary directory hierarchy under the required asset 
 ## Types of assets
 
 Enqueueror supports two types of assets: **scripts** and **stylesheets**:
-* Script assets are files located under the **scripts** directory and they are meant to deliver JavaScript code, either by containing raw JavaScript code, or by implementing PHP code which generates JavaScript code.
-* Stylesheet assets are files located under the **stylesheets** directory and they are meant to deliver CSS code, either by containing raw CSS code, or by implementing PHP code which generates CSS code.
+* Script assets are files located under the **scripts** directory, meant to deliver JavaScript code, either by containing raw JavaScript code, or by implementing PHP code which generates JavaScript code.
+* Stylesheet assets are files located under the **stylesheets** directory, meant to deliver CSS code, either by containing raw CSS code, or by implementing PHP code which generates CSS code.
 
-Enqueueror decides how each asset file should be processed by considering its file extension. As a result, each asset type is characterized by a set of file extensions as following:
+Enqueueror decides how each asset file should be processed by considering its file extension. As a result, each asset type is characterized by a set of file extensions:
 
 **File extensions supported for script assets:**
 - **.js** -> should contain raw JavaScript code.
@@ -90,7 +90,7 @@ Enqueueror decides how each asset file should be processed by considering its fi
 
 ## Asset contexts
 
-In Enqueueror's terminology, the **context** sets out which assets may be considered candidate to be delivered as part of WordPress' response, for the requested content. The available contexts are **global** and **current**. Consequently, each asset is assigned either to the **global** context or to the **current** context, as following:
+In Enqueueror's terminology, the **context** sets out which assets may be considered candidate to be delivered as part of WordPress' response, for the requested content. The available contexts are **global** and **current**. Consequently, each asset is assigned either to the **global** context or to the **current** context:
 - Assets assigned to the **global** context are delivered "globally", that is, irrispectively of the requested content.
 - Assets assigned to the **current** context are delivered conditionally, that is, provided that their filename signifies their applicability to the requested content.
 
@@ -99,7 +99,7 @@ In Enqueueror's terminology, the **context** sets out which assets may be consid
 An asset's filename is the combination of the following parts (parts in parentheses are conditional / optional):
 > **<asset_name>**(-**<wpml_language_code>**)(.**<flags_seperated_by_dot>**)**<supported_file_extension>**
 
-- The required **<asset_name>** part follows a naming convention meant to inform Enqueueror when and for which content the asset's code should be loaded.
+- The required **<asset_name>** part follows a naming convention meant to inform Enqueueror when and for which content the asset's code should be delivered.
 
 - The optional **<wpml_language_code>** part informs Enqueueror about the WPML based language code of the content the asset is applicable to. Lack of a language code specifier, sets the asset as applicable to the targeted content, irrespectively of the language of the latter.
 
@@ -113,7 +113,7 @@ The **<asset_name>** part of assets meant to act globally, that is to be deliver
 
 ### Current context assets
 
-For assets acting non globally, that is, being delivered conditionally, depending on the requested content, the **<asset_name>** part is driven by the following list of rules serving various content scenarios:
+For assets acting non globally, that is, being delivered conditionally depending on the requested content, the **<asset_name>** part is driven by the following list of rules serving various content scenarios:
 
 Scenario|<asset_name>|Example
 --------|------------|-------
@@ -157,7 +157,7 @@ The order according to which a browser executes chunks of code, is crucial for a
 ---- Assets in ascending directory depth (if a subdirectory hierarchy exists) <br>
 ------ Assets in the same directory are delivered in filename ascending order
 
-*Note: The above loading order of assets won't be respected for assets acting as dependencies. For example, if Asset 1 would normally be delivered before Asset 2, but Asset 2 is a dependency of Asset 1, Asset 2 will be delivered before Asset 1.*
+*Note: The aforementioned loading order won't be respected for assets acting as dependencies. For example, if Asset 1 would normally be delivered before Asset 2, but Asset 2 is a dependency of Asset 1, then Asset 2 will be delivered before Asset 1.*
 
 ## WPML - Multilingual Support
 
@@ -206,7 +206,7 @@ Enqueueror inspires from SASS and LESS, supporting PHP as a preprocessor for ass
 
 - Create asset files using the rules and naming conventions already mentioned, using the **.js.php** file extension.
 - Implement PHP code which outputs JavaScript code.
-- You may optionally use **```<script>```** tag when not within the PHP execution context.
+- You may optionally use **```<script>```** tags when not within the PHP execution context.
 
 Examples:
 
@@ -233,9 +233,10 @@ console.log('hello world');
 ```
 
 ### How to use the PHP preprocessor for CSS
+
 - Create asset files using the rules and naming conventions already mentioned using the **.css.php** file extension.
 - Implement PHP code which outputs CSS code.
-- You may optionally use **```<style>```** tag when not within the PHP execution context.
+- You may optionally use **```<style>```** tags when not within the PHP execution context.
 
 Examples:
 
@@ -262,9 +263,23 @@ Examples:
 </style>
 ```
 
+### Preventing security or performance issues
+
+PHP preprocessed assets are ordinary PHP files, meant to be used by Enqueueror only. It is recommended that developers prevent their code from being executed due to direct file access, that is, outside of Enqueueror's context, in order to avoid security or performance issues. To do so, developers may begin their PHP preprocessed assets using the following code block:
+
+```php
+<?php
+defined( 'ABSPATH' ) || exit;
+// Next lines of PHP code
+```
+
+Enqueueror tries to have developers' back, by implementing **.htaccess** rules that prevent direct access to any PHP preprocessed asset files contained in the active theme. Provided that Apache or Litespeed webserver is in use, **.htaccess** rules should be taken into account, and direct access to the aforementioned files should be forbidden in the first place, even if the files do no contain the aforementioned code block. In addition, Enqueueror will automatically update the **.htaccess** file when switching to a new theme.
+
+However, the **.htaccess** file won't be taken into account and direct file access prevention won't be enforced, if using a web server not supporting **.htaccess** files, such as Nginx. In addition, if another theme becomes active but the old one still exists, any PHP preprocessed asset files contained in the latter will become directly accessible, as Enqueueror will update **.htaccess** with respect to the newly active theme. Consequently, developers are recommended to implement the aforementioned code block.
+
 ## Header
 
-An asset may contain a header, that is, a block comment specifying details about the asset, in **key:value** format. The header should appear first, before any other code. The format of the header is as following:
+An asset may contain a header, that is, a block comment specifying details about the asset, in **key:value** format. The header should appear first, before any other code. The format of the header is as follows:
 
 ```
 /*
@@ -318,7 +333,7 @@ jQuery(document).ready(function(){
 
 ### Using local resource paths to specify dependencies
 
-Scripts and stylesheets located under the asset root directories of Enqueueror, support requiring other (local) scripts and stylesheets (respectively) located under the asset root directories.
+Scripts and stylesheets located under the asset root directories of Enqueueror may require other (local) scripts and stylesheets (respectively) located under the asset root directories.
 
 To specify local scripts or stylesheets as dependencies, one should specify their path relative to their respective asset root directory, starting with a slash (/). If the local script/stylesheet specified by the relative path does not exist, the dependent asset won't be loaded by WordPress. 
 
@@ -331,7 +346,7 @@ Examples:
  * Requires: /requirement1.js
  */
 
-call_function_implemented_in_requirement1(); // /requirement1.js
+call_function_implemented_in_requirement1_js(); // /requirement1.js
 ```
 
 **Specifying a dependency in a script asset using a local PHP preprocessed .js.php file**
@@ -341,7 +356,7 @@ call_function_implemented_in_requirement1(); // /requirement1.js
  * Requires: /requirement2.js.php
  */
 
-call_function_implemented_in_requirement2(); // /requirement2.js.php
+call_function_implemented_in_requirement2_js_php(); // /requirement2.js.php
 ```
 
 **Specifying a dependency in a stylesheet asset using a local .css file**
@@ -371,12 +386,12 @@ call_function_implemented_in_requirement2(); // /requirement2.js.php
 *Notes:*
 - *Only external assets may be used as dependencies.*
 - *If a dependency asset intented for the **body** (footer) HTML section is used by a dependent asset intented for the **head** HTML section, then the dependency asset will be loaded in the **head** HTML section, before the dependent asset.*
-- *If the dependency asset specified by the relative path does not exist, the dependent asset will not be loaded by WordPress.*
+- *If the dependency asset specified by the relative path does not exist, the dependent asset will not be loaded.*
 - *Dependency assets are not bound by the naming conventions presented in the relevant section.*
 
 ### Using URL based resources to specify dependencies
 
-To specify external scripts or stylesheets as dependencies, their URLs may be used as following:
+To specify external scripts or stylesheets as dependencies, their URLs may be used as shown below:
 
 **Specifying a dependency in a script asset using a URL to a script file**
 
@@ -417,8 +432,8 @@ Examples:
 
 // provided by the jQuery script represented by jquery handle
 jQuery(document).ready(function(){
-   call_function_implemented_in_requirement1(); // /requirement1.js
-   call_function_implemented_in_requirement2(); // /requirement2.js.php
+   call_function_implemented_in_requirement1_js(); // /requirement1.js
+   call_function_implemented_in_requirement2_js_php(); // /requirement2.js.php
    call_function_implemented_in_url_script(); // https://cdn.example.com/script.js
 });
 ```
@@ -441,7 +456,7 @@ It is possible that an asset's dependencies depend on other dependencies and so 
 
 In addition, it is not uncommon that two or more dependent assets, require the same dependencies. This scenario is also supported, ultimatelly resulting in the common dependencies to be loaded before the dependent assets.
 
-However, when specifying dependencies, the developer should be careful to avoid any circular dependencies as following: A requires B, B requires C, C requires A. This is a case of circular dependency which will result in WordPress halting with an error.
+However, when specifying dependencies, the developer should be careful to avoid any circular dependencies as described by the following scenario: A requires B, B requires C, C requires A. This is a case of circular dependency which will result in WordPress halting with an error.
 
 # Acknowledgments
-Thanks to Konstantinos Petsis for testing the initial release of Enqueueror.
+Thanks to [Konstantinos Petsis](https://www.linkedin.com/in/konstantinos-petsis-3a3444228/) for testing the initial release of Enqueueror.
