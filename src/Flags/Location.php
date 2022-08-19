@@ -5,9 +5,7 @@ namespace panastasiadist\Enqueueror\Flags;
 use panastasiadist\Enqueueror\Base\Flag;
 
 /**
- * Flag class regarding the location an asset should be output.
- * Flag name: location
- * Supported flag values: head, footer.
+ * Flag class providing values about the supported locations an asset may be used at.
  */
 class Location extends Flag
 {

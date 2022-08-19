@@ -105,8 +105,8 @@ class Core
 
         foreach ( $assets as $asset ) {
             $type = $asset->get_type();
-            $source = SourceFlag::get_value_for_asset( $asset, 'external' );
-            $location = LocationFlag::get_value_for_asset( $asset, 'head' );
+            $source = SourceFlag::get_detected_value( $asset->get_flags(), 'external' );
+            $location = LocationFlag::get_detected_value( $asset->get_flags(), 'head' );
 
             if ( 'external' == $source ) {
                 $handle = $asset->get_relative_filepath();
@@ -132,7 +132,7 @@ class Core
                     } else if ( 0 === mb_strpos( $dependency, '/' ) ) {
                         // Check if the dependency is an asset and act accordingly.
                         $dependency_asset = $this->explorer->get_asset_for_filepath( $dependency, $type );
-                        $dependency_asset_source = SourceFlag::get_value_for_asset( $dependency_asset, 'external' );
+                        $dependency_asset_source = SourceFlag::get_detected_value( $dependency_asset->get_flags(), 'external' );
 
                         if ( 'external' == $dependency_asset_source ) {
                             // Only external assets are supported, so they are able to be enqueued and be part of WordPress dependency resolution.
