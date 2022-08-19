@@ -12,5 +12,8 @@
             "email": "panos.anastasiadis@outlook.com"
         }
     ],
-    "require": {}
+    "require-dev": {
+        "phpunit/phpunit": "^9",
+        "yoast/phpunit-polyfills": "^1.0"
+    }
 }
