@@ -1,0 +1,8 @@
+# Directories
+vendor
+
+# PHPUnit
+.phpunit.result.cache
+
+# Log files
+*.log
