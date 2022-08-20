@@ -8,19 +8,19 @@ use InvalidArgumentException;
 /**
  * Represents information about an asset file which is candidate for processing.
  */
-class AssetNameRule
+class Descriptor
 {
-	private $name;
+	private $pattern;
 	private $context;
 	private $language_code;
 
 	/**
-	 * @param string $name The asset's name.
+	 * @param string $pattern The asset's name pattern.
 	 * @param string $context The asset's target. Valid values are 'global' or 'current'.
 	 * @param string $language_code The language's code targeted by the asset's name.
 	 * Valid values are 'all' or a language code
 	 */
-	public function __construct( string $name, string $context = 'current', string $language_code = 'all' )
+	public function __construct( string $pattern, string $context = 'current', string $language_code = 'all' )
 	{
 		if ( 'current' !== $context && 'global' !== $context ) {
 			throw new InvalidArgumentException( "Invalid context '$context' provided");
@@ -30,7 +30,7 @@ class AssetNameRule
 			throw new InvalidArgumentException( "No language code provided");
 		}
 
-		$this->name = $name;
+		$this->pattern = $pattern;
 		$this->context = $context;
 		$this->language_code = $language_code;
 	}
@@ -40,9 +40,9 @@ class AssetNameRule
 	 *
 	 * @return string
 	 */
-	public function get_name(): string
+	public function get_pattern(): string
 	{
-		return $this->name;
+		return $this->pattern;
 	}
 
 	/**

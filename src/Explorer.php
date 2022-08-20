@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace panastasiadist\Enqueueror;
 
 use panastasiadist\Enqueueror\Base\Asset;
-use panastasiadist\Enqueueror\Base\AssetNameRule;
+use panastasiadist\Enqueueror\Base\Descriptor;
 
 class Explorer
 {
@@ -79,10 +79,10 @@ class Explorer
         return $matched_files;
     }
 
-    private function get_language_augmented_asset_name_rules( array $asset_name_rules )
+    private function get_language_augmented_descriptors( array $descriptors )
     {
         if ( ! class_exists( 'SitePress' ) ) {
-            return $asset_name_rules;
+            return $descriptors;
         }
 
         global $sitepress;
@@ -90,18 +90,18 @@ class Explorer
         $current_langcode = $sitepress->get_current_language();
 
         if ( ! $current_langcode ) {
-            return $asset_name_rules;
+            return $descriptors;
         }
 
-        $asset_name_rules = array_merge($asset_name_rules, array_map(function( $asset_name_rule ) use ( $current_langcode ) {
-            return new AssetNameRule(
-                $asset_name_rule->get_name() . '-' . $current_langcode,
-                $asset_name_rule->get_context(),
+        $descriptors = array_merge($descriptors, array_map(function( $descriptor ) use ( $current_langcode ) {
+            return new Descriptor(
+	            $descriptor->get_pattern() . '-' . $current_langcode,
+                $descriptor->get_context(),
                 $current_langcode
             );
-        }, $asset_name_rules));
+        }, $descriptors));
 
-        return $asset_name_rules;
+        return $descriptors;
     }
 
     public function __construct( string $assets_directory_path )
@@ -205,12 +205,12 @@ class Explorer
     /**
      * Searches the filesystem for available asset files returning an array of Asset instances.
      *
-     * @param AssetName[] $asset_names An array of AssetName instances containing candidate asset names to search for.
+     * @param Descriptor[] $descriptors An array of Descriptor instances about which assets to return.
      * @param string $asset_type A string representing the type that the found asset files are designated for. 
      * Valid values are 'scripts' and 'stylesheets'.
      * @return Asset[] An array of Asset instances representing all found asset files. 
      */
-    private function get_assets( array $asset_name_rules, string $asset_type )
+    private function get_assets( array $descriptors, string $asset_type )
     {
         if ( isset( $this->asset_type_to_directory_path[ $asset_type ] ) ) {
             $directory_path = $this->asset_type_to_directory_path[ $asset_type ];
@@ -230,11 +230,11 @@ class Explorer
 
         $extension_regex = str_replace( '.', '\.', implode( '|', $extensions ) );
 
-        $asset_names = array_map(function( $asset_name_rule ) {
-            return $asset_name_rule->get_name();
-        }, $asset_name_rules);
+        $descriptors = array_map(function( $descriptor ) {
+            return $descriptor->get_pattern();
+        }, $descriptors);
 
-        $filenames_regex = implode( '|', $asset_names );
+        $filenames_regex = implode( '|', $descriptors );
         $filenames_regex = str_replace( '.', '\.', $filenames_regex );
         $filename_regex = "/^($filenames_regex)(\.[a-zA-Z0-9\-_\.]*)?($extension_regex)$/";
 
@@ -279,36 +279,35 @@ class Explorer
 
     public function get_assets_global( string $asset_type )
     {
-        return $this->get_assets( $this->get_supported_asset_names_global(), $asset_type );
+        return $this->get_assets( $this->get_supported_descriptors_global(), $asset_type );
     }
     
     public function get_assets_for_object( $object, string $asset_type ) 
     {
-        return $this->get_assets( $this->get_supported_asset_names_for_object( $object ), $asset_type );
+        return $this->get_assets( $this->get_supported_descriptors_for_object( $object ), $asset_type );
     }
 
-    public function get_supported_asset_names_for_object( $object )
+    public function get_supported_descriptors_for_object( $object )
     {
-        $asset_name_rules_functions = array(
-            array( $this, 'get_supported_asset_name_rules_if_term_object' ),
-            array( $this, 'get_supported_asset_name_rules_if_post_object' ),
-            array( $this, 'get_supported_asset_name_rules_if_user_object' ),
-            array( $this, 'get_supported_asset_name_rules_if_archive' ),
-            array( $this, 'get_supported_asset_name_rules_if_search' ),
-            array( $this, 'get_supported_asset_name_rules_if_not_found' ),
+        $descriptor_provider_functions = array(
+            array( $this, 'get_supported_descriptors_if_term_object' ),
+            array( $this, 'get_supported_descriptors_if_post_object' ),
+            array( $this, 'get_supported_descriptors_if_user_object' ),
+            array( $this, 'get_supported_descriptors_if_archive' ),
+            array( $this, 'get_supported_descriptors_if_search' ),
+            array( $this, 'get_supported_descriptors_if_not_found' ),
         );
 
-        return array_reduce($asset_name_rules_functions, function( $all, $fn ) use ( $object ) {
-            $all = array_merge( $all, $fn( $object ) );
-            return $all;
+        return array_reduce($descriptor_provider_functions, function( $all, $fn ) use ( $object ) {
+            return array_merge( $all, $fn( $object ) );
         }, array());
     }
 
-    public function get_supported_asset_names_global()
+    public function get_supported_descriptors_global()
     {
-        return $this->get_language_augmented_asset_name_rules(array( 
-            // new AssetNameRule( 'global(-[a-zA-Z0-1]+)?', 'global' ),
-            new AssetNameRule( 'global', 'global' ),
+        return $this->get_language_augmented_descriptors(array(
+            // new Descriptor( 'global(-[a-zA-Z0-1]+)?', 'global' ),
+            new Descriptor( 'global', 'global' ),
         ));
     }
 
@@ -350,7 +349,7 @@ class Explorer
         return $default_language_object;
     }
 
-    public function get_supported_asset_name_rules_if_term_object( $object )
+    public function get_supported_descriptors_if_term_object( $object )
     {
         if ( ! $object instanceof \WP_Term ) {
             return array();
@@ -358,26 +357,26 @@ class Explorer
 
         $default_language_object = $this->get_default_language_object( $object );
 
-        $names = $this->get_language_augmented_asset_name_rules(array(
-            new AssetNameRule( 'term' ),
-            new AssetNameRule( 'term-slug-' . $default_language_object->slug ), 
-            new AssetNameRule( 'term-id-' . $default_language_object->term_id ),
-            new AssetNameRule( 'tax-' . $default_language_object->taxonomy ),
-            new AssetNameRule( 'tax-' . $default_language_object->taxonomy . '-term-slug-' . $default_language_object->slug ),
-            new AssetNameRule( 'tax-' . $default_language_object->taxonomy . '-term-id-' . $default_language_object->term_id ),
+        $descriptors = $this->get_language_augmented_descriptors(array(
+            new Descriptor( 'term' ),
+            new Descriptor( 'term-slug-' . $default_language_object->slug ),
+            new Descriptor( 'term-id-' . $default_language_object->term_id ),
+            new Descriptor( 'tax-' . $default_language_object->taxonomy ),
+            new Descriptor( 'tax-' . $default_language_object->taxonomy . '-term-slug-' . $default_language_object->slug ),
+            new Descriptor( 'tax-' . $default_language_object->taxonomy . '-term-id-' . $default_language_object->term_id ),
         ));
 
         if ( $object->term_id != $default_language_object->term_id ) {
-            $names[] = new AssetNameRule( 'term-slug-' . $object->slug );
-            $names[] = new AssetNameRule( 'term-id-' . $object->term_id );
-            $names[] = new AssetNameRule( 'tax-' . $object->taxonomy . '-term-slug-' . $object->slug );
-            $names[] = new AssetNameRule( 'tax-' . $object->taxonomy . '-term-id-' . $object->term_id );
+            $descriptors[] = new Descriptor( 'term-slug-' . $object->slug );
+            $descriptors[] = new Descriptor( 'term-id-' . $object->term_id );
+            $descriptors[] = new Descriptor( 'tax-' . $object->taxonomy . '-term-slug-' . $object->slug );
+            $descriptors[] = new Descriptor( 'tax-' . $object->taxonomy . '-term-id-' . $object->term_id );
         }
 
-        return $names;
+        return $descriptors;
     }
 
-    public function get_supported_asset_name_rules_if_post_object( $object )
+    public function get_supported_descriptors_if_post_object( $object )
     {
         if ( ! $object instanceof \WP_Post ) {
             return array();
@@ -385,77 +384,75 @@ class Explorer
 
         $default_language_object = $this->get_default_language_object( $object );
 
-        $names = $this->get_language_augmented_asset_name_rules(array(
-            new AssetNameRule( 'type' ),
-            new AssetNameRule( 'type-id-' . $default_language_object->ID ),
-            new AssetNameRule( 'type-slug-' . $default_language_object->post_name ),
-            new AssetNameRule( 'type-' . $default_language_object->post_type ),
-            new AssetNameRule( 'type-' . $default_language_object->post_type . '-slug-' . $default_language_object->post_name ),
-            new AssetNameRule( 'type-' . $default_language_object->post_type . '-id-' . $default_language_object->ID ),
+        $descriptors = $this->get_language_augmented_descriptors(array(
+            new Descriptor( 'type' ),
+            new Descriptor( 'type-id-' . $default_language_object->ID ),
+            new Descriptor( 'type-slug-' . $default_language_object->post_name ),
+            new Descriptor( 'type-' . $default_language_object->post_type ),
+            new Descriptor( 'type-' . $default_language_object->post_type . '-slug-' . $default_language_object->post_name ),
+            new Descriptor( 'type-' . $default_language_object->post_type . '-id-' . $default_language_object->ID ),
         ));
 
         if ( $object->ID != $default_language_object->ID ) {
-            $names[] = new AssetNameRule( 'type-id-' . $object->ID );
-            $names[] = new AssetNameRule( 'type-slug-' . $object->post_name );
-            $names[] = new AssetNameRule( 'type-' . $object->post_type . '-slug-' . $object->post_name );
-            $names[] = new AssetNameRule( 'type-' . $object->post_type . '-id-' . $object->ID );
+            $descriptors[] = new Descriptor( 'type-id-' . $object->ID );
+            $descriptors[] = new Descriptor( 'type-slug-' . $object->post_name );
+            $descriptors[] = new Descriptor( 'type-' . $object->post_type . '-slug-' . $object->post_name );
+            $descriptors[] = new Descriptor( 'type-' . $object->post_type . '-id-' . $object->ID );
         }
 
-        return $names;
+        return $descriptors;
     }
 
-    public function get_supported_asset_name_rules_if_user_object( $object )
+    public function get_supported_descriptors_if_user_object( $object )
     {
         if ( ! $object instanceof \WP_User ) {
             return array();
         }
 
-        $names = array(
-            new AssetNameRule( 'user' ),
-            new AssetNameRule( 'user-id-' . $object->data->ID ),
+        return array(
+            new Descriptor( 'user' ),
+            new Descriptor( 'user-id-' . $object->data->ID ),
         );
-
-        return $names;
     }
 
-    public function get_supported_asset_name_rules_if_archive( $object )
+    public function get_supported_descriptors_if_archive( $object )
     {
         if ( ! is_archive() ) {
             return array();
         }
 
-        $names = array(
-            new AssetNameRule( 'archive' ),
+        $descriptors = array(
+            new Descriptor( 'archive' ),
         );
 
         if ( is_date() ) {
-            $names[] = new AssetNameRule( 'archive-date' );
+            $descriptors[] = new Descriptor( 'archive-date' );
         } else if ( $object instanceof \WP_Post_Type ) {
-            $names[] = new AssetNameRule( 'archive-type-' . $object->name );
+            $descriptors[] = new Descriptor( 'archive-type-' . $object->name );
         }
 
-        return $this->get_language_augmented_asset_name_rules( $names );
+        return $this->get_language_augmented_descriptors( $descriptors );
     }
 
-    public function get_supported_asset_name_rules_if_search( $object )
+    public function get_supported_descriptors_if_search( $object )
     {
         if ( ! is_search() ) {
             return array();
         }
 
-        return $this->get_language_augmented_asset_name_rules(array(
-            new AssetNameRule( 'search' ),
+        return $this->get_language_augmented_descriptors(array(
+            new Descriptor( 'search' ),
         ));
     }
 
-    public function get_supported_asset_name_rules_if_not_found( $object )
+    public function get_supported_descriptors_if_not_found( $object )
     {
         if ( ! is_404() ) {
             return array();
         }
 
-        return $this->get_language_augmented_asset_name_rules(array(
-            new AssetNameRule( 'not-found' ),
+        return $this->get_language_augmented_descriptors(array(
+            new Descriptor( 'not-found' ),
         ));
     }
 }
