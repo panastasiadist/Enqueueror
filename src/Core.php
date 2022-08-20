@@ -203,7 +203,7 @@ class Core
 
         $processor_class = $this->extension_to_processor[ $asset->get_extension() ];
 
-        $processed_file_path = $processor_class::get_processed_filepath( $asset );
+        $processed_file_path = $processor_class::get_processed_filepath( $asset->get_absolute_filepath() );
 
         if ( false === $processed_file_path ) {
             return false;
@@ -230,7 +230,7 @@ class Core
 
         $processor_class = $this->extension_to_processor[ $asset->get_extension() ];
 
-        return $processor_class::get_header_values( $asset );
+        return $processor_class::get_header_values( $asset->get_absolute_filepath() );
     }
 
     private function store_processed_file( string $name, string $path, string $extension ) 

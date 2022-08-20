@@ -9,22 +9,22 @@ use panastasiadist\Enqueueror\Base\Processor;
  */
 class Raw extends Processor
 {
-    /**
-     * Returns the type of assets this processor supports. Supported asset type: 'stylesheets'.
-     * 
-     * @return string Array containing the string 'stylesheets'.
-     */
-    public static function get_supported_asset_type()
+	/**
+	 * Returns the asset type supported by the processor.
+	 *
+	 * @return string Returns 'stylesheets'.
+	 */
+    public static function get_supported_asset_type(): string
     {
         return 'stylesheets';
     }
 
-    /**
-     * Returns the file extensions this processor supports. Supported extensions: 'css'.
-     * 
-     * @return string[] Array containing the string 'css'.
-     */
-    public static function get_supported_extensions()
+	/**
+	 * Returns the asset file extensions supported by the processor.
+	 *
+	 * @return string[] Array containing the string 'css'.
+	 */
+    public static function get_supported_extensions(): array
     {
         return array( 'css' );
     }
