@@ -58,11 +58,23 @@ class Core
         add_action( 'wp_enqueue_scripts', array( $this, 'output_enqueueable' ) );
         add_action( 'wp_head', array( $this, 'output_head_printed' ) );
         add_action( 'get_footer', array( $this, 'output_footer' ) );
-        add_action( 'switch_theme', array( HtaccessUtility::class, 'write' ), 10, 0 );
+	    add_action( 'switch_theme', array( $this, 'write_htaccess' ), 10, 0 );
 
-        register_activation_hook( $plugin_file, array( HtaccessUtility::class, 'write' ) );
-        register_deactivation_hook( $plugin_file, array( HtaccessUtility::class, 'delete' ) );
+	    register_activation_hook( $plugin_file, array( $this, 'write_htaccess' ) );
+	    register_deactivation_hook( $plugin_file, array( HtaccessUtility::class, 'delete' ) );
     }
+
+	/**
+	 * Writes the required .htaccess rules taking into account the current state of the system.
+	 *
+	 * @return void
+	 */
+	public function write_htaccess()
+	{
+		$explorer = new Explorer( wp_get_theme()->get_stylesheet_directory() );
+		$paths = array_values( $explorer->get_asset_directory_paths() );
+		HtaccessUtility::write( $paths );
+	}
 
     /**
      * Coordinates the output of assets, applicable to the current page, taking into account the location and output 
