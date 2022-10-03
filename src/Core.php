@@ -89,11 +89,7 @@ class Core
         $queried_object = get_queried_object();
 
         foreach ( array( 'scripts', 'stylesheets' ) as $type ) {
-            $assets = array_merge(
-                $this->explorer->get_assets_global( $type ),
-                $this->explorer->get_assets_for_object( $queried_object, $type )
-            );
-
+			$assets = $this->explorer->get_assets( $type );
             $assets = Manager::get_assets_filtered( $assets, $for_location, $output_modes );
             $assets = Manager::get_assets_sorted( $assets );
 

@@ -3,8 +3,17 @@ declare(strict_types=1);
 
 namespace panastasiadist\Enqueueror;
 
+use Exception;
 use panastasiadist\Enqueueror\Base\Asset;
+use panastasiadist\Enqueueror\Base\Description;
 use panastasiadist\Enqueueror\Base\Descriptor;
+use panastasiadist\Enqueueror\Descriptors\Archive;
+use panastasiadist\Enqueueror\Descriptors\Generic;
+use panastasiadist\Enqueueror\Descriptors\NotFound;
+use panastasiadist\Enqueueror\Descriptors\Post;
+use panastasiadist\Enqueueror\Descriptors\Search;
+use panastasiadist\Enqueueror\Descriptors\Term;
+use panastasiadist\Enqueueror\Descriptors\User;
 
 class Explorer
 {
@@ -79,31 +88,9 @@ class Explorer
         return $matched_files;
     }
 
-    private function get_language_augmented_descriptors( array $descriptors )
-    {
-        if ( ! class_exists( 'SitePress' ) ) {
-            return $descriptors;
-        }
-
-        global $sitepress;
-            
-        $current_langcode = $sitepress->get_current_language();
-
-        if ( ! $current_langcode ) {
-            return $descriptors;
-        }
-
-        $descriptors = array_merge($descriptors, array_map(function( $descriptor ) use ( $current_langcode ) {
-            return new Descriptor(
-	            $descriptor->get_pattern() . '-' . $current_langcode,
-                $descriptor->get_context(),
-                $current_langcode
-            );
-        }, $descriptors));
-
-        return $descriptors;
-    }
-
+	/**
+	 * @param string $assets_directory_path A filesystem path to a directory to search for asset files in.
+	 */
     public function __construct( string $assets_directory_path )
     {
         $this->asset_type_to_directory_path[ 'scripts' ] = 
@@ -123,7 +110,7 @@ class Explorer
         if ( isset( $this->asset_type_to_supported_extensions[ $asset_type ] ) ) {
             $this->asset_type_to_supported_extensions[ $asset_type ] = $extensions;
         } else {
-            throw new \Exception( "Extensions for asset type '$asset_type' are not supported" );
+            throw new Exception( "Extensions for asset type '$asset_type' are not supported" );
         }
     }
 
@@ -205,23 +192,24 @@ class Explorer
     /**
      * Searches the filesystem for available asset files returning an array of Asset instances.
      *
-     * @param Descriptor[] $descriptors An array of Descriptor instances about which assets to return.
+     * @param Description[] $descriptors An array of Descriptor instances about which assets to return.
      * @param string $asset_type A string representing the type that the found asset files are designated for. 
      * Valid values are 'scripts' and 'stylesheets'.
-     * @return Asset[] An array of Asset instances representing all found asset files. 
+     *
+     * @return Asset[] An array of Asset instances representing all found asset files.
      */
-    private function get_assets( array $descriptors, string $asset_type )
+    private function get_assets_by_descriptions( array $descriptors, string $asset_type )
     {
         if ( isset( $this->asset_type_to_directory_path[ $asset_type ] ) ) {
             $directory_path = $this->asset_type_to_directory_path[ $asset_type ];
         } else {
-            throw new \Exception( "No asset directory registered for '$asset_type' asset type" );
+            throw new Exception( "No asset directory registered for '$asset_type' asset type" );
         }
 
         if ( isset( $this->asset_type_to_supported_extensions[ $asset_type ] ) ) {
             $extensions = $this->asset_type_to_supported_extensions[ $asset_type ];
         } else {
-            throw new \Exception( "No extensions registered for '$asset_type' asset type" );
+            throw new Exception( "No extensions registered for '$asset_type' asset type" );
         }
 
         $extensions = array_map(function($extension) {
@@ -261,13 +249,13 @@ class Explorer
         if ( isset( $this->asset_type_to_directory_path[ $asset_type ] ) ) {
             $directory_path = $this->asset_type_to_directory_path[ $asset_type ];
         } else {
-            throw new \Exception( "No asset directory registered for '$asset_type' asset type" );
+            throw new Exception( "No asset directory registered for '$asset_type' asset type" );
         }
 
         if ( isset( $this->asset_type_to_supported_extensions[ $asset_type ] ) ) {
             $extensions = $this->asset_type_to_supported_extensions[ $asset_type ];
         } else {
-            throw new \Exception( "No extensions registered for '$asset_type' asset type" );
+            throw new Exception( "No extensions registered for '$asset_type' asset type" );
         }
 
         $filepath = $directory_path . $filepath;
@@ -277,182 +265,34 @@ class Explorer
         return $this->get_asset_for_file_info_structure( $structure, $asset_type, $directory_path, $extensions );
     }
 
-    public function get_assets_global( string $asset_type )
-    {
-        return $this->get_assets( $this->get_supported_descriptors_global(), $asset_type );
-    }
-    
-    public function get_assets_for_object( $object, string $asset_type ) 
-    {
-        return $this->get_assets( $this->get_supported_descriptors_for_object( $object ), $asset_type );
-    }
+	/**
+	 * Returns an array of Asset instances corresponding to the current request and asset type.
+	 *
+	 * @param string $asset_type The type of Assets to return.
+	 * @return Asset[] An array of Asset instances applicable to the current request.
+	 * @throws Exception If unable to discover assets applicable to the current request.
+	 */
+	public function get_assets( string $asset_type ): array
+	{
+		/**
+		 * @var Descriptor[] $descriptors An array of Descriptor classes to use.
+		 */
+		$descriptors = array(
+			Archive::class,
+			Generic::class,
+			NotFound::class,
+			Post::class,
+			Search::class,
+			Term::class,
+			User::class,
+		);
 
-    public function get_supported_descriptors_for_object( $object )
-    {
-        $descriptor_provider_functions = array(
-            array( $this, 'get_supported_descriptors_if_term_object' ),
-            array( $this, 'get_supported_descriptors_if_post_object' ),
-            array( $this, 'get_supported_descriptors_if_user_object' ),
-            array( $this, 'get_supported_descriptors_if_archive' ),
-            array( $this, 'get_supported_descriptors_if_search' ),
-            array( $this, 'get_supported_descriptors_if_not_found' ),
-        );
+		$descriptions = array();
 
-        return array_reduce($descriptor_provider_functions, function( $all, $fn ) use ( $object ) {
-            return array_merge( $all, $fn( $object ) );
-        }, array());
-    }
+		foreach ( $descriptors as $descriptor ) {
+			$descriptions = array_merge( $descriptions, $descriptor::get() );
+		}
 
-    public function get_supported_descriptors_global()
-    {
-        return $this->get_language_augmented_descriptors(array(
-            // new Descriptor( 'global(-[a-zA-Z0-1]+)?', 'global' ),
-            new Descriptor( 'global', 'global' ),
-        ));
-    }
-
-    private function get_default_language_object( $object ) 
-    {
-        if ( ! class_exists( 'SitePress' ) ) {
-            return $object;
-        }
-
-        $default_language_object = $object;
-
-        global $sitepress;
-        
-        $default_langcode = $sitepress->get_default_language();
-        $current_langcode = $sitepress->get_current_language();
-
-        if ( ! ( $default_langcode && $current_langcode ) ) {
-            return $default_language_object;
-        }
-
-        if ( $object instanceof \WP_Term ) {
-            $default_id = apply_filters( 'wpml_object_id', $object->term_id, $object->taxonomy, true, $default_langcode );
-            
-            if ( $default_id != $object->term_id ) {
-                $sitepress->switch_lang( $default_langcode );
-                $default_language_object = get_term( $default_id, $object->taxonomy );
-                $sitepress->switch_lang( $current_langcode );
-            }
-        } else if ( $object instanceof \WP_Post ) {
-            $default_id = apply_filters( 'wpml_object_id', $object->ID, $object->post_type, true, $default_langcode );
-            
-            if ( $default_id != $object->ID ) {
-                $sitepress->switch_lang( $default_langcode );
-                $default_language_object = get_post( $default_id, $object->post_type );
-                $sitepress->switch_lang( $current_langcode );
-            }
-        }
-
-        return $default_language_object;
-    }
-
-    public function get_supported_descriptors_if_term_object( $object )
-    {
-        if ( ! $object instanceof \WP_Term ) {
-            return array();
-        }
-
-        $default_language_object = $this->get_default_language_object( $object );
-
-        $descriptors = $this->get_language_augmented_descriptors(array(
-            new Descriptor( 'term' ),
-            new Descriptor( 'term-slug-' . $default_language_object->slug ),
-            new Descriptor( 'term-id-' . $default_language_object->term_id ),
-            new Descriptor( 'tax-' . $default_language_object->taxonomy ),
-            new Descriptor( 'tax-' . $default_language_object->taxonomy . '-term-slug-' . $default_language_object->slug ),
-            new Descriptor( 'tax-' . $default_language_object->taxonomy . '-term-id-' . $default_language_object->term_id ),
-        ));
-
-        if ( $object->term_id != $default_language_object->term_id ) {
-            $descriptors[] = new Descriptor( 'term-slug-' . $object->slug );
-            $descriptors[] = new Descriptor( 'term-id-' . $object->term_id );
-            $descriptors[] = new Descriptor( 'tax-' . $object->taxonomy . '-term-slug-' . $object->slug );
-            $descriptors[] = new Descriptor( 'tax-' . $object->taxonomy . '-term-id-' . $object->term_id );
-        }
-
-        return $descriptors;
-    }
-
-    public function get_supported_descriptors_if_post_object( $object )
-    {
-        if ( ! $object instanceof \WP_Post ) {
-            return array();
-        }
-
-        $default_language_object = $this->get_default_language_object( $object );
-
-        $descriptors = $this->get_language_augmented_descriptors(array(
-            new Descriptor( 'type' ),
-            new Descriptor( 'type-id-' . $default_language_object->ID ),
-            new Descriptor( 'type-slug-' . $default_language_object->post_name ),
-            new Descriptor( 'type-' . $default_language_object->post_type ),
-            new Descriptor( 'type-' . $default_language_object->post_type . '-slug-' . $default_language_object->post_name ),
-            new Descriptor( 'type-' . $default_language_object->post_type . '-id-' . $default_language_object->ID ),
-        ));
-
-        if ( $object->ID != $default_language_object->ID ) {
-            $descriptors[] = new Descriptor( 'type-id-' . $object->ID );
-            $descriptors[] = new Descriptor( 'type-slug-' . $object->post_name );
-            $descriptors[] = new Descriptor( 'type-' . $object->post_type . '-slug-' . $object->post_name );
-            $descriptors[] = new Descriptor( 'type-' . $object->post_type . '-id-' . $object->ID );
-        }
-
-        return $descriptors;
-    }
-
-    public function get_supported_descriptors_if_user_object( $object )
-    {
-        if ( ! $object instanceof \WP_User ) {
-            return array();
-        }
-
-        return array(
-            new Descriptor( 'user' ),
-            new Descriptor( 'user-id-' . $object->data->ID ),
-        );
-    }
-
-    public function get_supported_descriptors_if_archive( $object )
-    {
-        if ( ! is_archive() ) {
-            return array();
-        }
-
-        $descriptors = array(
-            new Descriptor( 'archive' ),
-        );
-
-        if ( is_date() ) {
-            $descriptors[] = new Descriptor( 'archive-date' );
-        } else if ( $object instanceof \WP_Post_Type ) {
-            $descriptors[] = new Descriptor( 'archive-type-' . $object->name );
-        }
-
-        return $this->get_language_augmented_descriptors( $descriptors );
-    }
-
-    public function get_supported_descriptors_if_search( $object )
-    {
-        if ( ! is_search() ) {
-            return array();
-        }
-
-        return $this->get_language_augmented_descriptors(array(
-            new Descriptor( 'search' ),
-        ));
-    }
-
-    public function get_supported_descriptors_if_not_found( $object )
-    {
-        if ( ! is_404() ) {
-            return array();
-        }
-
-        return $this->get_language_augmented_descriptors(array(
-            new Descriptor( 'not-found' ),
-        ));
-    }
+		return $this->get_assets_by_descriptions( $descriptions, $asset_type );
+	}
 }
