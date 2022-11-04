@@ -9,11 +9,12 @@ use panastasiadist\Enqueueror\Descriptors\Search;
 use panastasiadist\Enqueueror\Descriptors\Term;
 use panastasiadist\Enqueueror\Descriptors\User;
 
+require_once( __DIR__ . '/wpml-boilerplate.php' );
 
 class TestDescriptors extends WP_UnitTestCase
 {
-	private $wpml_default_language = null;
-	private $wpml_current_language = null;
+	use WPML_Boilerplate;
+
 	private $wpml_default_language_post_id = null;
 	private $wpml_default_language_term_id = null;
 	private $wpml_alt_language_post_id = null;
@@ -49,32 +50,6 @@ class TestDescriptors extends WP_UnitTestCase
 
 			$this->assertEquals( count( $descriptions_expected ), count( $descriptions ) );
 		}
-	}
-
-	/**
-	 * Mocks 'wpml_default_language' filter supported by WPML and used by the code.
-	 * Returns the language code of the default language in a WPML supported WordPress installation.
-	 *
-	 * @param $arg
-	 *
-	 * @return null
-	 */
-	public function filter_wpml_default_language( $arg )
-	{
-		return $this->wpml_default_language;
-	}
-
-	/**
-	 * Mocks 'wpml_current_language' filter supported by WPML and used by the code.
-	 * Returns the language code of the active language in a WPML supported WordPress installation.
-	 *
-	 * @param $arg
-	 *
-	 * @return null
-	 */
-	public function filter_wpml_current_language( $arg )
-	{
-		return $this->wpml_current_language;
 	}
 
 	/**

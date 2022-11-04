@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace panastasiadist\Enqueueror;
 
 use panastasiadist\Enqueueror\Base\Asset;
+use panastasiadist\Enqueueror\Base\Processor as Processor;
 use panastasiadist\Enqueueror\Flags\Source as SourceFlag;
 use panastasiadist\Enqueueror\Flags\Location as LocationFlag;
 use panastasiadist\Enqueueror\Utilities\Htaccess as HtaccessUtility;
@@ -28,32 +29,28 @@ class Core
 
     public function __construct( string $plugin_file )
     {
-        $type_to_extensions = array();
+		$asset_type_to_config = array();
 
         // Each processor supports generating code for exactly one asset type (script or stylesheet) based on the code
         // contained in specific extensions supported by the processor.
 
         foreach ( self::PROCESSORS as $class ) {
             $type = $class::get_supported_asset_type();
-            $extensions = $class::get_supported_extensions();
 
-            if ( ! isset( $type_to_extensions[ $type ] ) ) {
-                $type_to_extensions[ $type ] = array();
-            }
-
-            $type_to_extensions[ $type ] = array_merge( $type_to_extensions[ $type ], $extensions );
-
-            foreach ( $extensions as $extension ) {
-                $this->extension_to_processor[ $extension ] = $class;
-            }
+			foreach ( $class::get_supported_extensions() as $extension ) {
+				$asset_type_to_config[ $type ][ 'extensions' ][] = $extension;
+				$this->extension_to_processor[ $extension ] = $class;
+			}
         }
 
-        $this->explorer = new Explorer( get_stylesheet_directory() );
+		$base_directory_path = get_stylesheet_directory();
+
+		foreach ( $asset_type_to_config as $asset_type => &$config ) {
+			$config[ 'directory_path' ] = $base_directory_path . DIRECTORY_SEPARATOR . $asset_type;
+		}
+
+        $this->explorer = new Explorer( $asset_type_to_config );
         // $this->logger = new Logger( __DIR__ . '/log.txt' );
-
-        foreach ( $type_to_extensions as $type => $extensions ) {
-            $this->explorer->register_asset_extensions( $type, $extensions );
-        }
 
         add_action( 'wp_enqueue_scripts', array( $this, 'output_enqueueable' ) );
         add_action( 'wp_head', array( $this, 'output_head_printed' ) );
@@ -71,8 +68,12 @@ class Core
 	 */
 	public function write_htaccess()
 	{
-		$explorer = new Explorer( wp_get_theme()->get_stylesheet_directory() );
-		$paths = array_values( $explorer->get_asset_directory_paths() );
+		$base_directory_path = wp_get_theme()->get_stylesheet_directory();
+
+		$paths = array_unique( array_map( function( string $processor_class ) use ( $base_directory_path ) {
+			return $base_directory_path . DIRECTORY_SEPARATOR . $processor_class::get_supported_asset_type();
+		}, self::PROCESSORS ) );
+
 		HtaccessUtility::write( $paths );
 	}
 
@@ -139,7 +140,7 @@ class Core
                         $dependencies_urls[] = $dependency;
                     } else if ( 0 === mb_strpos( $dependency, '/' ) ) {
                         // Check if the dependency is an asset and act accordingly.
-                        $dependency_asset = $this->explorer->get_asset_for_filepath( $dependency, $type );
+                        $dependency_asset = $this->explorer->get_asset_for_file_path( $dependency, $type );
                         $dependency_asset_source = SourceFlag::get_detected_value( $dependency_asset->get_flags(), 'external' );
 
                         if ( 'external' == $dependency_asset_source ) {
