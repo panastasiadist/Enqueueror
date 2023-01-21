@@ -248,8 +248,8 @@ class TestDescriptors extends WP_UnitTestCase
 
 		// Create dummy posts to simulate language based post Descriptions.
 
-		$post_default = $this->factory->post->create_and_get( array( 'post_type' => 'post' ) );
-		$post_alt = $this->factory->post->create_and_get( array( 'post_type' => 'post' ) );
+		$post_default = $this->factory()->post->create_and_get( array( 'post_type' => 'post' ) );
+		$post_alt = $this->factory()->post->create_and_get( array( 'post_type' => 'post' ) );
 
 		$this->wpml_default_language_post_id = $post_default->ID;
 		$this->wpml_alt_language_post_id = $post_alt->ID;
@@ -339,8 +339,8 @@ class TestDescriptors extends WP_UnitTestCase
 
 		// Create dummy terms to test language based term Descriptions
 
-		$term_default = $this->factory->term->create_and_get( array( 'taxonomy' => 'category' ) );
-		$term_alt = $this->factory->term->create_and_get( array( 'taxonomy' => 'category' ) );
+		$term_default = $this->factory()->term->create_and_get( array( 'taxonomy' => 'category' ) );
+		$term_alt = $this->factory()->term->create_and_get( array( 'taxonomy' => 'category' ) );
 
 		$this->wpml_default_language_term_id = $term_default->term_id;
 		$this->wpml_alt_language_term_id = $term_alt->term_id;
