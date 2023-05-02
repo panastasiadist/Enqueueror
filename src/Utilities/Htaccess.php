@@ -17,6 +17,9 @@ class Htaccess
 			'RewriteEngine On',
 		);
 
+		// Reset the array keys to make sure that zero based indexing is possible.
+		$paths_to_restrict = array_values( $paths_to_restrict );
+
 		$count = count( $paths_to_restrict );
 
 		for ( $idx = 0; $idx < $count; $idx += 1 ) {
