@@ -12,12 +12,11 @@ class Filesystem
 	 * @param string $directory_path The absolute filesystem path to a directory.
 	 *
 	 * @return string[] An array of absolute filesystem paths.
-	 * @throws Exception If the provided directory is not available or readable.
 	 */
 	private static function get_file_paths( string $directory_path ): array
 	{
 		if ( ! is_readable( $directory_path ) ) {
-			throw new Exception( "'$directory_path' not available or readable" );
+			return array();
 		}
 
 		// Stored in ascending order.
@@ -59,7 +58,6 @@ class Filesystem
 	 * @param string $filename_regex The regex applied to each file's basename.
 	 *
 	 * @return array An array of associative arrays, each one containing information about a file.
-	 * @throws Exception If unable to search for files in the provided directory path.
 	 */
 	public static function get_files( string $directory_path, string $filename_regex ): array
 	{
