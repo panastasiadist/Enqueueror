@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace panastasiadist\Enqueueror;
 
@@ -8,347 +8,410 @@ use panastasiadist\Enqueueror\Base\Processor as Processor;
 use panastasiadist\Enqueueror\Flags\Source as SourceFlag;
 use panastasiadist\Enqueueror\Flags\Location as LocationFlag;
 use panastasiadist\Enqueueror\Utilities\Htaccess as HtaccessUtility;
+use panastasiadist\Enqueueror\Processors\JS\Raw as RawJsProcessor;
+use panastasiadist\Enqueueror\Processors\JS\Php as PhpJsProcessor;
+use panastasiadist\Enqueueror\Processors\CSS\Php as PhpCssProcessor;
+use panastasiadist\Enqueueror\Processors\CSS\Raw as RawCssProcessor;
 
-class Core
-{
-    const PROCESSORS = array(
-        __NAMESPACE__ . '\Processors\JS\Raw',
-        __NAMESPACE__ . '\Processors\JS\Php',
-        __NAMESPACE__ . '\Processors\CSS\Raw',
-        __NAMESPACE__ . '\Processors\CSS\Php',
-    );
+class Core {
+	/**
+	 * An array of supported processor classes.
+	 *
+	 * @var Processor[]
+	 */
+	const PROCESSORS = array(
+		RawJsProcessor::class,
+		PhpJsProcessor::class,
+		PhpCssProcessor::class,
+		RawCssProcessor::class,
+	);
 
-    private $explorer = null;
-    // private $logger = null;
+	/**
+	 * A single Explorer instance. Initialized in the constructor.
+	 *
+	 * @var Explorer
+	 */
+	private $explorer;
 
-    /**
-     * Each supported asset file's extension corresponds to exactly one type of asset (script or stylesheet) and may be
-     * handled by exactly one processor supporting the specified extension and the asset type designated by the latter.
-     */
-    private $extension_to_processor = array();
+	/**
+	 * File extension mapped to the Processor class that handles it.
+	 *
+	 * @var array<string, Processor>
+	 */
+	private $extension_to_processor = array();
 
-    public function __construct( string $plugin_file )
-    {
+	/**
+	 * Constructor
+	 *
+	 * @param string $plugin_file_path Plugin's main file path.
+	 */
+	public function __construct( string $plugin_file_path ) {
 		$asset_type_to_config = array();
 
-        // Each processor supports generating code for exactly one asset type (script or stylesheet) based on the code
-        // contained in specific extensions supported by the processor.
+		// Each processor generates code for a specific type of asset recognized by one or more file extensions.
 
-        foreach ( self::PROCESSORS as $class ) {
-            $type = $class::get_supported_asset_type();
+		foreach ( self::PROCESSORS as $class ) {
+			$type = $class::get_supported_asset_type();
 
 			foreach ( $class::get_supported_extensions() as $extension ) {
-				$asset_type_to_config[ $type ][ 'extensions' ][] = $extension;
-				$this->extension_to_processor[ $extension ] = $class;
+				$asset_type_to_config[ $type ]['extensions'][] = $extension;
+				$this->extension_to_processor[ $extension ]    = $class;
 			}
-        }
+		}
 
 		$base_directory_path = get_stylesheet_directory();
 
 		foreach ( $asset_type_to_config as $asset_type => &$config ) {
-			$config[ 'directory_path' ] = $base_directory_path . DIRECTORY_SEPARATOR . $asset_type;
+			$config['directory_path'] = $base_directory_path . DIRECTORY_SEPARATOR . $asset_type;
 		}
 
-        $this->explorer = new Explorer( $asset_type_to_config );
-        // $this->logger = new Logger( __DIR__ . '/log.txt' );
+		$this->explorer = new Explorer( $asset_type_to_config );
 
-        add_action( 'wp_enqueue_scripts', array( $this, 'output_enqueueable' ) );
-        add_action( 'wp_head', array( $this, 'output_head_printed' ) );
-        add_action( 'get_footer', array( $this, 'output_footer' ) );
-	    add_action( 'switch_theme', array( $this, 'write_htaccess' ), 10, 0 );
+		// Link asset files in the <head> section of the HTML document.
+		add_action( 'wp_enqueue_scripts', array( $this, 'output_head_enqueued_assets' ) );
 
-	    register_activation_hook( $plugin_file, array( $this, 'write_htaccess' ) );
-	    register_deactivation_hook( $plugin_file, array( HtaccessUtility::class, 'delete' ) );
-    }
+		// Output raw asset code in the <head> section of the HTML document.
+		add_action( 'wp_head', array( $this, 'output_head_internal_assets' ) );
+
+		// Link asset files or output raw asset code in the <body> section of the HTML document.
+		add_action( 'get_footer', array( $this, 'output_footer_assets' ) );
+
+		// Update .htaccess with useful stuff when the active theme changes while the plugin is already active.
+		add_action( 'switch_theme', array( $this, 'write_htaccess' ), 10, 0 );
+
+		// Update .htaccess with useful stuff when the plugin is activated.
+		register_activation_hook( $plugin_file_path, array( $this, 'write_htaccess' ) );
+
+		// Clean .htaccess stuff when the plugin is deactivated.
+		register_deactivation_hook( $plugin_file_path, array( HtaccessUtility::class, 'delete' ) );
+	}
 
 	/**
-	 * Writes the required .htaccess rules taking into account the current state of the system.
+	 * Writes useful .htaccess rules, taking into account the current state of the system.
 	 *
 	 * @return void
 	 */
-	public function write_htaccess()
-	{
+	public function write_htaccess() {
 		$base_directory_path = wp_get_theme()->get_stylesheet_directory();
 
-		$paths = array_unique( array_map( function( string $processor_class ) use ( $base_directory_path ) {
+		$paths = array_unique( array_map( function ( string $processor_class ) use ( $base_directory_path ) {
 			return $base_directory_path . DIRECTORY_SEPARATOR . $processor_class::get_supported_asset_type();
 		}, self::PROCESSORS ) );
 
 		HtaccessUtility::write( $paths );
 	}
 
-    /**
-     * Coordinates the output of assets, applicable to the current page, taking into account the location and output 
-     * modes.
-     * 
-     * @param string $for_location Output assets designated only for the requested location.
-     * @param string[] $output_modes Output assets provided they are supported by the requested output modes.
-     * @return void
-     */
-    private function enqueue( string $for_location, array $output_modes ) 
-    {
-        $queried_object = get_queried_object();
+	/**
+	 * Coordinates the output of assets applicable to the current page.
+	 *
+	 * @param string $for_location Output assets designated only for the requested location.
+	 * @param string[] $output_modes Output assets provided they are supported by the requested output modes.
+	 *
+	 * @return void
+	 */
+	private function enqueue( string $for_location, array $output_modes ) {
+		/**
+		 * A bag of discovered assets, accessed by their type.
+		 *
+		 * @var array<string, Asset[]> $asset_type_to_discovered_assets
+		 */
+		static $asset_type_to_discovered_assets = null;
 
-        foreach ( array( 'scripts', 'stylesheets' ) as $type ) {
-			$assets = $this->explorer->get_assets( $type );
-            $assets = Manager::get_assets_filtered( $assets, $for_location, $output_modes );
-            $assets = Manager::get_assets_sorted( $assets );
+		// This is the first time this function is run.
+		// Call the Explorer to discover all assets handled by the available Processors.
+		// The assets will be filtered and sorted out each time this function is called, according to the arguments.
+		if ( null === $asset_type_to_discovered_assets ) {
+			foreach ( array( 'scripts', 'stylesheets' ) as $type ) {
+				$asset_type_to_discovered_assets[ $type ] = $this->explorer->get_assets( $type );
+			}
+		}
 
-            $this->output_assets( $assets );
-        }
-    }
+		foreach ( array( 'scripts', 'stylesheets' ) as $type ) {
+			$assets = $asset_type_to_discovered_assets[ $type ];
+			$assets = Manager::get_assets_filtered( $assets, $for_location, $output_modes );
+			$assets = Manager::get_assets_sorted( $assets );
 
-    /**
-     * Coordinates the enqueueing / output of the passed-in assets according to their type and flags.
-     *
-     * @param Asset[] $assets The assets to handle their output in the page.
-     * @return void
-     */
-    private function output_assets( $assets )
-    {
-        static $enqueued_asset_handles = null;
+			$this->output_assets( $assets );
+		}
+	}
 
-        if ( null === $enqueued_asset_handles ) {
-            $enqueued_asset_handles = array();
-        }
+	/**
+	 * Coordinates the output of the provided assets according to their type and their flags.
+	 *
+	 * @param Asset[] $assets The assets to handle their output in the page.
+	 *
+	 * @return void
+	 */
+	private function output_assets( array $assets ) {
+		static $enqueued_asset_handles = null;
 
-        foreach ( $assets as $asset ) {
-            $type = $asset->get_type();
-            $source = SourceFlag::get_detected_value( $asset->get_flags(), 'external' );
-            $location = LocationFlag::get_detected_value( $asset->get_flags(), 'head' );
+		if ( null === $enqueued_asset_handles ) {
+			$enqueued_asset_handles = array();
+		}
 
-            if ( 'external' == $source ) {
-                $handle = $asset->get_relative_filepath();
-                $file_path = $this->get_processed_asset_filepath( $asset, $handle );
+		foreach ( $assets as $asset ) {
+			$type     = $asset->get_type();
+			$source   = SourceFlag::get_detected_value( $asset->get_flags(), 'external' );
+			$location = LocationFlag::get_detected_value( $asset->get_flags(), 'head' );
 
-                if ( false === $file_path ) {
-                    continue;
-                }
+			if ( 'external' === $source ) {
+				$file_path = $this->get_asset_serving_filepath( $asset );
 
-                $file_url = $this->get_url_from_path( $file_path );
+				if ( false === $file_path ) {
+					continue;
+				}
 
-                $dependencies = array();
-                $dependencies_assets = array();
-                $dependencies_urls = array();
+				$file_url = $this->get_url_from_path( $file_path );
 
-                foreach ( $this->get_asset_dependencies( $asset ) as $dependency ) {
-                    $dependencies[] = $dependency;
+				$dependencies        = array();
+				$dependencies_urls   = array();
+				$dependencies_assets = array();
 
-                    $http = 0 === mb_strpos( $dependency, 'http://' ) || 0 === mb_strpos( $dependency, 'https://' );
+				foreach ( $this->get_asset_dependencies( $asset ) as $dependency ) {
+					$dependencies[] = $dependency;
 
-                    if ( $http && filter_var( $dependency, FILTER_VALIDATE_URL ) ) {
-                        $dependencies_urls[] = $dependency;
-                    } else if ( 0 === mb_strpos( $dependency, '/' ) ) {
-                        // Check if the dependency is an asset and act accordingly.
-                        $dependency_asset = $this->explorer->get_asset_for_file_path( $dependency, $type );
-                        $dependency_asset_source = SourceFlag::get_detected_value( $dependency_asset->get_flags(), 'external' );
+					$http = 0 === mb_strpos( $dependency, 'http://' ) || 0 === mb_strpos( $dependency, 'https://' );
 
-                        if ( 'external' == $dependency_asset_source ) {
-                            // Only external assets are supported, so they are able to be enqueued and be part of WordPress dependency resolution.
-                            $dependencies_assets[] = $dependency_asset;
-                        }
-                    }
-                }
+					if ( $http && filter_var( $dependency, FILTER_VALIDATE_URL ) ) {
+						$dependencies_urls[] = $dependency;
+					} else if ( 0 === mb_strpos( $dependency, '/' ) ) {
+						// Check if the dependency is an asset and act accordingly.
+						$dependency_asset        = $this->explorer->get_asset_for_file_path( $dependency, $type );
+						$dependency_asset_source = SourceFlag::get_detected_value( $dependency_asset->get_flags(), 'external' );
 
-                $this->output_assets( $dependencies_assets );
+						if ( 'external' === $dependency_asset_source ) {
+							// Only external assets are supported, so they are able to be enqueued and be part of
+							// WordPress dependency resolution.
+							$dependencies_assets[] = $dependency_asset;
+						}
+					}
+				}
 
-                foreach ( $dependencies_urls as $dependency_url ) {
-                    if ( ! in_array( $dependency_url, $enqueued_asset_handles ) ) {
-                        if ( 'scripts' == $type ) {
-                            wp_enqueue_script( $dependency_url, $dependency_url, array(), false, 'footer' == $location );
-                            $enqueued_asset_handles[] = $dependency_url;
-                        } elseif ( 'stylesheets' == $type ) {
-                            wp_enqueue_style( $dependency_url, $dependency_url );
-                            $enqueued_asset_handles[] = $dependency_url;
-                        }
-                    }
-                }
+				$this->output_assets( $dependencies_assets );
 
-                if ( ! in_array( $handle, $enqueued_asset_handles ) ) {
-                    if ( 'scripts' == $type ) {
-                        wp_enqueue_script( $handle, $file_url, $dependencies, filemtime( $file_path ), 'footer' == $location );
-                        $enqueued_asset_handles[] = $handle;
-                    } elseif ( 'stylesheets' == $type ) {
-                        wp_enqueue_style( $handle, $file_url, $dependencies, filemtime( $file_path ) );
-                        $enqueued_asset_handles[] = $handle;
-                    }
-                }
-            } elseif ( 'internal' == $source ) {
-                $file_path = $this->get_processed_asset_filepath( $asset );
-                
-                if ( false === $file_path ) {
-                    continue;
-                }
+				foreach ( $dependencies_urls as $dependency_url ) {
+					if ( ! in_array( $dependency_url, $enqueued_asset_handles ) ) {
+						if ( 'scripts' === $type ) {
+							wp_enqueue_script( $dependency_url, $dependency_url, array(), false, 'footer' === $location );
+							$enqueued_asset_handles[] = $dependency_url;
+						} elseif ( 'stylesheets' === $type ) {
+							wp_enqueue_style( $dependency_url, $dependency_url );
+							$enqueued_asset_handles[] = $dependency_url;
+						}
+					}
+				}
 
-                echo 'scripts' == $type ? '<script>' : ( 'stylesheets' == $type ? '<style>' : '' );
-                echo file_get_contents( $file_path );
-                echo 'scripts' == $type ? '</script>' : ( 'stylesheets' == $type ? '</style>' : '' );
-            }
-        }
-    }
+				$handle = $asset->get_relative_filepath();
 
-    private function get_asset_dependencies( Asset $asset ) 
-    {
-        $dependencies = array();
+				if ( ! in_array( $handle, $enqueued_asset_handles ) ) {
+					if ( 'scripts' === $type ) {
+						wp_enqueue_script( $handle, $file_url, $dependencies, filemtime( $file_path ), 'footer' === $location );
+						$enqueued_asset_handles[] = $handle;
+					} elseif ( 'stylesheets' === $type ) {
+						wp_enqueue_style( $handle, $file_url, $dependencies, filemtime( $file_path ) );
+						$enqueued_asset_handles[] = $handle;
+					}
+				}
+			} elseif ( 'internal' === $source ) {
+				$file_path = $this->get_asset_serving_filepath( $asset );
 
-        $header = $this->get_header_values( $asset );
+				if ( false === $file_path ) {
+					continue;
+				}
 
-        if ( $header && isset( $header[ 'Requires' ] ) ) {
-            $dependencies = explode( ',', $header[ 'Requires' ] );
-            $dependencies = array_map( 'trim', $dependencies );
-            $dependencies = array_filter( $dependencies, function( $dependency ) {
-                return $dependency != '';
-            });
-        }
+				echo 'scripts' === $type ? '<script>' : ( 'stylesheets' === $type ? '<style>' : '' );
+				echo file_get_contents( $file_path );
+				echo 'scripts' === $type ? '</script>' : ( 'stylesheets' === $type ? '</style>' : '' );
+			}
+		}
+	}
 
-        return $dependencies;
-    }
+	/**
+	 * Returns an array of dependencies specified by the provided asset.
+	 *
+	 * @param Asset $asset An instance of an asset to return its dependencies.
+	 *
+	 * @return string[] Array of dependencies.
+	 */
+	private function get_asset_dependencies( Asset $asset ): array {
+		$dependencies = array();
 
-    private function get_processed_asset_filepath( Asset $asset, string $store_as_filename = '' )
-    {
-        if ( ! isset( $this->extension_to_processor[ $asset->get_extension() ] ) ) {
-            return false;
-        }
+		$processor_class = $this->extension_to_processor[ $asset->get_extension() ];
 
-        $processor_class = $this->extension_to_processor[ $asset->get_extension() ];
+		$header = $processor_class::get_header_values( $asset->get_absolute_filepath() );
 
-        $processed_file_path = $processor_class::get_processed_filepath( $asset->get_absolute_filepath() );
+		if ( $header && isset( $header['Requires'] ) ) {
+			$dependencies = explode( ',', $header['Requires'] );
+			$dependencies = array_map( 'trim', $dependencies );
+			$dependencies = array_filter( $dependencies, function ( $dependency ) {
+				return $dependency != '';
+			} );
+		}
 
-        if ( false === $processed_file_path ) {
-            return false;
-        }
+		return $dependencies;
+	}
 
-        if ( '' !== $store_as_filename && $processed_file_path !== $asset->get_absolute_filepath() ) {
-            $store_extension = $asset->get_type() === 'scripts' ? 'js' : 'css';
+	/**
+	 * Returns a path for an asset which can be used to serve the asset's contents in a format appropriate for browsers:
+	 * - Returns the path of the original asset file, if the latter does not require processing before being served.
+	 * - Alternatively, returns the path of a processed version of the original asset which is appropriate for browsers.
+	 *
+	 * @param Asset $asset An instance of an asset to a return a path for.
+	 *
+	 * @return false|string The final filepath to be used for serving the asset to browsers or false on error
+	 */
+	private function get_asset_serving_filepath( Asset $asset ) {
+		$processor_class = $this->extension_to_processor[ $asset->get_extension() ];
 
-            $processed_file_path = $this->store_processed_file(
-                $store_as_filename, 
-                $processed_file_path,
-                $store_extension
-            );
-        }
+		$processed_file_path = $processor_class::get_processed_filepath( $asset->get_absolute_filepath() );
 
-        return $processed_file_path;
-    }
+		if ( false === $processed_file_path ) {
+			return false;
+		}
 
-    private function get_header_values( Asset $asset ) 
-    {
-        if ( ! isset( $this->extension_to_processor[ $asset->get_extension() ] ) ) {
-            return false;
-        }
+		if ( $processed_file_path !== $asset->get_absolute_filepath() ) {
+			$store_extension = $asset->get_type() === 'scripts' ? 'js' : 'css';
 
-        $processor_class = $this->extension_to_processor[ $asset->get_extension() ];
+			$processed_file_path = $this->store_processed_file(
+				$processed_file_path,
+				$asset->get_relative_filepath(),
+				$store_extension
+			);
+		}
 
-        return $processor_class::get_header_values( $asset->get_absolute_filepath() );
-    }
+		return $processed_file_path;
+	}
 
-    private function store_processed_file( string $name, string $path, string $extension ) 
-    {
-        $serve_dir = WP_CONTENT_DIR . '/uploads/enqueueror';
+	/**
+	 * Stores a processed file in the public directory and returns its path.
+	 *
+	 * @param string $processed_file_path The current path to the processed file to store in the public directory.
+	 * @param string $source_basename The basename of the source file from which the processed file derives its content.
+	 * @param string $extension The extension to use for the final processed file when stored in the public directory.
+	 *
+	 * @return false|string The file path to the final processed file in the public directory.
+	 */
+	private function store_processed_file( string $processed_file_path, string $source_basename, string $extension ) {
+		// The root directory processed files are stored under.
+		$serving_directory_path = WP_CONTENT_DIR . '/uploads/enqueueror';
 
-        $name_parts = explode( '/', $name );
+		// If the source file basename contains slashes, then the source file's name represents its path relatively to its root directory.
+		// Make sure the directory structure of the source file is represented within the serving directory.
+		$source_basename_parts = explode( '/', $source_basename );
 
-        $name_parts = array_filter($name_parts, function( $name_part ) {
-            return '' != $name_part;
-        });
+		// Clean the empty parts of the basename, produced by a basename beginning and/or ending with a slash (/).
+		$source_basename_parts = array_filter( $source_basename_parts, function ( $part ) {
+			return '' !== $part;
+		} );
 
-        if ( count( $name_parts ) > 1 ) {
-            $serve_dir .= '/' . implode( '/', array_slice( $name_parts, 0, -1 ) );
-        }
+		// If the parts of the cleaned parts are more than one, then slashes were found between the first and last character of the basename.
+		// As a result, the basename truly represents a directory hierarchy the source file is located under.
+		// This directory structure should be reproduced within the serving directory.
+		// All parts but the last one are nested directories to be created under the serving directory.
+		// The last part is the actual basename of the source file.
+		// Append the directory parts to the root serving directory path to form the final serving directory path of the processed file.
+		if ( count( $source_basename_parts ) > 1 ) {
+			$serving_directory_path .= DIRECTORY_SEPARATOR . implode( DIRECTORY_SEPARATOR, array_slice( $source_basename_parts, 0, - 1 ) );
+		}
 
-        $name = end( $name_parts );
+		// Try creating the final serving directory.
+		if ( false === wp_mkdir_p( $serving_directory_path ) ) {
+			return false;
+		}
 
-        $hash_separator = '-';
+		// The last one of the parts will always be the actual basename of the source file.
+		$source_basename = end( $source_basename_parts );
 
-        if ( false === wp_mkdir_p( $serve_dir ) ) {
-            return false;
-        }
+		// The processed file will be stored with a basename of the following pattern "$source_file_basename[HASH_SEPARATOR][HASH].$extension"
+		// The [HASH] part is calculated according to the contents of the processed file.
+		// The serving directory may contain out-of-date processed files that should be deleted for cleanup purposes.
+		// The serving directory should contain only the processed file corresponding to the content of the source file.
 
-        static $basename_without_hash_to_filepaths = null;
-        
-        if ( null === $basename_without_hash_to_filepaths ) {
-            foreach ( glob( "$serve_dir/*.$extension" ) as $filepath ) {
-                $basename = basename( $filepath );
-                $basename_parts = explode( $hash_separator, $basename );
-                $name_part = implode( $hash_separator, array_slice( $basename_parts, 0, count( $basename_parts ) - 1 ) );
-                $basename_without_hash = $name_part . $extension;
-                $basename_without_hash_to_filepaths[ $basename_without_hash ][] = $serve_dir . DIRECTORY_SEPARATOR . $basename;
-            }
-        }
+		$hash_separator = '-';
 
-        $hash = md5_file( $path );
+		static $source_basename_to_processed_file_paths = null;
 
-        $serve_file_path = $serve_dir . DIRECTORY_SEPARATOR . $name . $hash_separator . $hash . '.' . $extension;
+		if ( null === $source_basename_to_processed_file_paths ) {
+			// Search in the serving directory for processed files and group their paths by the basename of the source file.
+			foreach ( glob( "$serving_directory_path/*.$extension" ) as $processed_file_path ) {
+				$basename              = basename( $processed_file_path );
+				$basename_parts        = explode( $hash_separator, $basename );
+				$name_part             = implode( $hash_separator, array_slice( $basename_parts, 0, - 1 ) );
+				$basename_without_hash = $name_part . $extension;
 
-        if ( ! file_exists( $serve_file_path ) ) {
-            $basename_without_hash = $name . $extension;
+				// The associative array will be used in the next stage to remove any out-of-date processed files.
+				$source_basename_to_processed_file_paths[ $basename_without_hash ][] = $serving_directory_path . DIRECTORY_SEPARATOR . $basename;
+			}
+		}
 
-            if ( isset( $basename_without_hash_to_filepaths[ $basename_without_hash ] ) ) {
-                foreach ( $basename_without_hash_to_filepaths[ $basename_without_hash ] as $expired_asset_filepath) {
-                    unlink( $expired_asset_filepath );
-                    // $this->logger->debug( "Deleted processed file '" . $expired_asset_filepath . "' for handle '$name'" );
-                }
-            }
+		// Calculate according the processed file's content, itself originating from the source file's content.
+		// As a result, the hash will be "unique" to the content of the source file.
+		$hash = md5_file( $processed_file_path );
 
-            copy( $path, $serve_file_path );
+		$target_file_path = $serving_directory_path . DIRECTORY_SEPARATOR . $source_basename . $hash_separator . $hash . '.' . $extension;
 
-            $basename_without_hash_to_filepaths[ $basename_without_hash ][] = $serve_file_path;
+		if ( ! file_exists( $target_file_path ) ) {
+			$basename_without_hash = $source_basename . $extension;
 
-            // $this->logger->debug( "Storing processed filename '$serve_file_path' for handle '$name'" );
-        }
+			// We are here, because the path of the new processed file does not yet exist.
+			// Time to clean any out-of-date processed files stored in the serving directory originating from the same file.
+			if ( isset( $source_basename_to_processed_file_paths[ $basename_without_hash ] ) ) {
+				foreach ( $source_basename_to_processed_file_paths[ $basename_without_hash ] as $expired_asset_filepath ) {
+					unlink( $expired_asset_filepath );
+				}
+			}
 
-        // $this->logger->debug( "Returning processed filename '$serve_file_path' for handle '$name'" );
+			// Now copy the processed file from its temporary location to its final destination.
+			copy( $processed_file_path, $target_file_path );
 
-        return $serve_file_path;
-    }
-    
-    /**
-     * Translates an absolute filesystem path to its equivalent public URL.
-     * 
-     * @param string $path The filesystem path to return a public URL for.
-     * @return string the absolute public URL corresponding to the path.
-     */
-    private function get_url_from_path( string $path ) 
-    {
-        $url = str_replace(
-            wp_normalize_path( untrailingslashit( ABSPATH ) ), 
-            site_url(), 
-            wp_normalize_path( $path )
-        );
+			// The newly created processed file is now linked to the file it derives from.
+			$source_basename_to_processed_file_paths[ $basename_without_hash ][] = $target_file_path;
+		}
 
-        return esc_url_raw( $url );
-    }
+		return $target_file_path;
+	}
 
-    /**
-     * Should be called in WP asset enqueueing stage, to output assets that should be enqueued using WP enqueuing 
-     * mechanisms.
-     * 
-     * @return void
-     */
-    public function output_enqueueable()
-    {
-        $this->enqueue( 'head', [ 'enqueue' ] );
-    }
+	/**
+	 * Translates an absolute filesystem path to its equivalent public URL.
+	 *
+	 * @param string $path The filesystem path.
+	 *
+	 * @return string The absolute public URL.
+	 */
+	private function get_url_from_path( string $path ): string {
+		$url = str_replace(
+			wp_normalize_path( untrailingslashit( ABSPATH ) ),
+			site_url(),
+			wp_normalize_path( $path )
+		);
 
-    /**
-     * Should be called when generating the <head> HTML section, to output assets that should exist in <head> HTML 
-     * section without using WP enqueuing mechanisms.
-     * 
-     * @return void
-     */
-    public function output_head_printed()
-    {
-        $this->enqueue( 'head', [ 'print' ] );
-    }
+		return esc_url_raw( $url );
+	}
 
-    /**
-     * Should be called when generating the last part of the <body> HTML section, to output assets that should exist in 
-     * <body> HTML section.
-     * 
-     * @return void
-     */
-    public function output_footer()
-    {
-        $this->enqueue( 'footer', [ 'enqueue', 'print' ] );
-    }
+	/**
+	 * Fires the output of assets' code that should be enqueued within the <head> section of the HTML document.
+	 *
+	 * @return void
+	 */
+	public function output_head_enqueued_assets() {
+		$this->enqueue( 'head', [ 'enqueue' ] );
+	}
+
+	/**
+	 * Fires the output of assets' code that should appear within the <head> section of the HTML document.
+	 *
+	 * @return void
+	 */
+	public function output_head_internal_assets() {
+		$this->enqueue( 'head', array( 'print' ) );
+	}
+
+	/**
+	 * Fires the output of assets' code that should appear or be enqueued before the </body> tag of the HTML document.
+	 *
+	 * @return void
+	 */
+	public function output_footer_assets() {
+		$this->enqueue( 'footer', array( 'enqueue', 'print' ) );
+	}
 }
