@@ -37,10 +37,7 @@ class Filesystem {
 		// ascending depth.
 		foreach ( $file_directory_paths as $path ) {
 			$sub_files = self::get_file_paths( $path );
-
-			if ( false !== $sub_files ) {
-				$file_paths = array_merge( $file_paths, $sub_files );
-			}
+			$file_paths = array_merge( $file_paths, $sub_files );
 		}
 
 		return $file_paths;
