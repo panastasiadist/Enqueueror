@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace panastasiadist\Enqueueror;
 
@@ -16,8 +16,7 @@ use panastasiadist\Enqueueror\Descriptors\Term;
 use panastasiadist\Enqueueror\Descriptors\User;
 use panastasiadist\Enqueueror\Utilities\Filesystem;
 
-class Explorer
-{
+class Explorer {
 	/**
 	 * Array of Descriptors used by this class to discover Assets applicable to the request.
 	 */
@@ -34,12 +33,12 @@ class Explorer
 	/**
 	 * @var array Associative array: string -> string. Asset type to absolute filesystem directory path.
 	 */
-    private $asset_type_to_directory_path = array();
+	private $asset_type_to_directory_path = array();
 
 	/**
 	 * @var array Associative array: string -> string[]. Asset type to file extensions.
 	 */
-    private $asset_type_to_extensions = array();
+	private $asset_type_to_extensions = array();
 
 	/**
 	 * @var array Associative array: string -> string. Asset extension to asset type.
@@ -54,8 +53,7 @@ class Explorer
 	 * @return string The absolute filesystem path.
 	 * @throws Exception If a directory path hasn't been configured for the provided asset type.
 	 */
-	private function get_directory_path_for_asset_type( string $asset_type ): string
-	{
+	private function get_directory_path_for_asset_type( string $asset_type ): string {
 		if ( isset( $this->asset_type_to_directory_path[ $asset_type ] ) ) {
 			return $this->asset_type_to_directory_path[ $asset_type ];
 		}
@@ -71,8 +69,7 @@ class Explorer
 	 * @return string[] The array of supported file extensions.
 	 * @throws Exception If supported file extensions haven't been configured for the provided asset type.
 	 */
-	private function get_extensions_for_asset_type( string $asset_type ): array
-	{
+	private function get_extensions_for_asset_type( string $asset_type ): array {
 		if ( isset( $this->asset_type_to_extensions[ $asset_type ] ) ) {
 			return $this->asset_type_to_extensions[ $asset_type ];
 		}
@@ -88,24 +85,23 @@ class Explorer
 	 * @return Asset The Asset instance representing the provided file.
 	 * @throws Exception If the provided file is not supported.
 	 */
-	private function get_asset_for_file( array $file ): Asset
-	{
+	private function get_asset_for_file( array $file ): Asset {
 		$extensions = array_keys( $this->extension_to_asset_type );
 
 		// Sort the extensions, so the more lengthy come first.
-		usort( $extensions, function( string $a, string $b ) {
+		usort( $extensions, function ( string $a, string $b ) {
 			return mb_strlen( $b ) - mb_strlen( $a );
 		} );
 
 		foreach ( $extensions as $extension ) {
-			$basename_length = mb_strlen( $file[ 'basename' ] );
-			$dot_extension = '.' . $extension;
+			$basename_length      = mb_strlen( $file['basename'] );
+			$dot_extension        = '.' . $extension;
 			$dot_extension_length = mb_strlen( $dot_extension );
 
-			if ( mb_substr( $file[ 'basename' ], $basename_length - $dot_extension_length ) == $dot_extension ) {
-				$asset_type = $this->extension_to_asset_type[ $extension ];
-				$directory_path = $this->get_directory_path_for_asset_type( $asset_type );
-				$filename_with_flags = mb_substr( $file[ 'basename' ], 0, $basename_length - $dot_extension_length );
+			if ( mb_substr( $file['basename'], $basename_length - $dot_extension_length ) == $dot_extension ) {
+				$asset_type          = $this->extension_to_asset_type[ $extension ];
+				$directory_path      = $this->get_directory_path_for_asset_type( $asset_type );
+				$filename_with_flags = mb_substr( $file['basename'], 0, $basename_length - $dot_extension_length );
 				break;
 			}
 		}
@@ -116,7 +112,7 @@ class Explorer
 
 		$flags = explode( '.', $filename_with_flags );
 
-		$filename_without_flags = $flags[ 0 ];
+		$filename_without_flags = $flags[0];
 
 		// If the array contains one item, then no dots found in the filename, so no flags are present. The only item
 		// returned is the filename.
@@ -125,17 +121,18 @@ class Explorer
 		$language_code = 'all';
 
 		if ( $current_language_code = apply_filters( 'wpml_current_language', null ) ) {
-			$language_code_suffix = '-' . $current_language_code;
+			$language_code_suffix        = '-' . $current_language_code;
 			$language_code_suffix_length = mb_strlen( $language_code_suffix );
 
-			if ( $language_code_suffix === mb_substr( $filename_without_flags, -$language_code_suffix_length ) ) {
+			if ( $language_code_suffix === mb_substr( $filename_without_flags, - $language_code_suffix_length ) ) {
 				$language_code = $current_language_code;
 			}
 		}
 
-		$absolute_filepath = $file[ 'dirname' ] . DIRECTORY_SEPARATOR . $file[ 'basename' ];
+		$absolute_filepath = $file['dirname'] . DIRECTORY_SEPARATOR . $file['basename'];
 
 		// $asset_type, $extension and $directory_path will actually be defined
+
 		/** @noinspection PhpUndefinedVariableInspection */
 		return new Asset(
 			$asset_type,
@@ -158,11 +155,10 @@ class Explorer
 	 * @return Asset[] An array of Asset instances representing all asset files found.
 	 * @throws Exception If the provided asset type is not configured.
 	 */
-	private function get_assets_by_descriptions( array $descriptions, string $asset_type ): array
-	{
+	private function get_assets_by_descriptions( array $descriptions, string $asset_type ): array {
 		// Get the extensions supported for the provided asset type prepending them with a dot character as required in
 		// the next stages when constructing the required regular expressions.
-		$extensions = array_map( function( $extension ) {
+		$extensions = array_map( function ( $extension ) {
 			return '.' . $extension;
 		}, $this->get_extensions_for_asset_type( $asset_type ) );
 
@@ -170,17 +166,17 @@ class Explorer
 		// Extensions are used as part of the regex, so their dot character should be escaped.
 		$extension_regex = str_replace( '.', '\.', implode( '|', $extensions ) );
 
-		$patterns = array_map( function( Description $description ) {
+		$patterns = array_map( function ( Description $description ) {
 			return $description->get_pattern();
 		}, $descriptions );
 
 		$filenames_regex = implode( '|', $patterns );
 		$filenames_regex = str_replace( '.', '\.', $filenames_regex );
-		$filename_regex = "/^($filenames_regex)(\.[a-zA-Z0-9\-_\.]*)?($extension_regex)$/";
+		$filename_regex  = "/^($filenames_regex)(\.[a-zA-Z0-9\-_\.]*)?($extension_regex)$/";
 
 		$directory_path = $this->get_directory_path_for_asset_type( $asset_type );
 
-		return array_map( function( $file ) use ( $directory_path, $filename_regex ) {
+		return array_map( function ( $file ) use ( $directory_path, $filename_regex ) {
 			return $this->get_asset_for_file( $file );
 		}, Filesystem::get_files( $directory_path, $filename_regex ) );
 	}
@@ -191,8 +187,7 @@ class Explorer
 	 *
 	 * @param array $asset_type_to_config An associative configuration array
 	 */
-    public function __construct( array $asset_type_to_config )
-    {
+	public function __construct( array $asset_type_to_config ) {
 		foreach ( $asset_type_to_config as $asset_type => $config ) {
 			foreach ( $config as $key => $value ) {
 				if ( 'directory_path' == $key ) {
@@ -206,28 +201,27 @@ class Explorer
 				}
 			}
 		}
-    }
+	}
 
-    /**
-     * Returns an Asset instance given an asset's filesystem path within the directory setup for the given asset type.
-     *
-     * @param string $file_path The absolute/relative filesystem path to an asset. If a relative path is given, then the
-     * path must start with a '/' and it must be relative to the directory containing assets of type $asset_type.
-     * @param string $asset_type The type of the asset designated by the filesystem path given.
-     *
-     * @return Asset The Asset instance for the requested asset or false on failure. 
-     * @throws Exception Thrown if $asset_type is not supported.
-     */
-    public function get_asset_for_file_path( string $file_path, string $asset_type ): Asset
-    {
+	/**
+	 * Returns an Asset instance given an asset's filesystem path within the directory setup for the given asset type.
+	 *
+	 * @param string $file_path The absolute/relative filesystem path to an asset. If a relative path is given, then the
+	 * path must start with a '/' and it must be relative to the directory containing assets of type $asset_type.
+	 * @param string $asset_type The type of the asset designated by the filesystem path given.
+	 *
+	 * @return Asset The Asset instance for the requested asset or false on failure.
+	 * @throws Exception Thrown if $asset_type is not supported.
+	 */
+	public function get_asset_for_file_path( string $file_path, string $asset_type ): Asset {
 		if ( realpath( $file_path ) === $file_path ) {
 			$path = $file_path;
 		} else {
 			$path = $this->get_directory_path_for_asset_type( $asset_type ) . $file_path;
 		}
 
-        return $this->get_asset_for_file( pathinfo( $path ) );
-    }
+		return $this->get_asset_for_file( pathinfo( $path ) );
+	}
 
 	/**
 	 * Returns an array of Asset instances corresponding to the current request and the provided asset type.
@@ -237,11 +231,10 @@ class Explorer
 	 * @return Asset[] An array of Asset instances applicable to the current request.
 	 * @throws Exception If unable to search for assets.
 	 */
-	public function get_assets( string $asset_type ): array
-	{
-		$descriptions = array_reduce(self::DESCRIPTORS, function( array $acc, string $descriptor ) {
+	public function get_assets( string $asset_type ): array {
+		$descriptions = array_reduce( self::DESCRIPTORS, function ( array $acc, string $descriptor ) {
 			return array_merge( $acc, $descriptor::get() );
-		}, array());
+		}, array() );
 
 		return $this->get_assets_by_descriptions( $descriptions, $asset_type );
 	}
