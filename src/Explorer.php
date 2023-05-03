@@ -6,7 +6,6 @@ namespace panastasiadist\Enqueueror;
 use Exception;
 use panastasiadist\Enqueueror\Base\Asset;
 use panastasiadist\Enqueueror\Base\Description;
-use panastasiadist\Enqueueror\Base\Descriptor;
 use panastasiadist\Enqueueror\Descriptors\Archive;
 use panastasiadist\Enqueueror\Descriptors\Generic;
 use panastasiadist\Enqueueror\Descriptors\NotFound;

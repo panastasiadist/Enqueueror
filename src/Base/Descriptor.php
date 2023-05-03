@@ -3,9 +3,6 @@ declare( strict_types=1 );
 
 namespace panastasiadist\Enqueueror\Base;
 
-use Exception;
-use panastasiadist\Enqueueror\Base\Description;
-
 /**
  * Abstract class for classes providing descriptors.
  */

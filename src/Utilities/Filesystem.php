@@ -2,8 +2,6 @@
 
 namespace panastasiadist\Enqueueror\Utilities;
 
-use Exception;
-
 class Filesystem {
 	/**
 	 * Returns an array of absolute filesystem paths to files found recursively under the provided directory path.

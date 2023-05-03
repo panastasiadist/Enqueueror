@@ -2,7 +2,6 @@
 
 namespace panastasiadist\Enqueueror\Descriptors;
 
-use Exception;
 use panastasiadist\Enqueueror\Base\Description;
 use panastasiadist\Enqueueror\Base\Descriptor;
 
