@@ -50,7 +50,7 @@ class Processor {
 	 * Empty if no header section or no header values are specified in the asset's file.
 	 * False if unable to read the contents of the provided file path.
 	 */
-	public static function get_header_values( string $asset_file_path ): array {
+	public static function get_header_values( string $asset_file_path ) {
 		$content = file_get_contents( $asset_file_path );
 
 		if ( false === $content ) {
