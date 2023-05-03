@@ -6,16 +6,14 @@ use Exception;
 use panastasiadist\Enqueueror\Base\Description;
 use panastasiadist\Enqueueror\Base\Descriptor;
 
-class Archive extends Descriptor
-{
+class Archive extends Descriptor {
 	/**
 	 * Returns an array of Description instances representing assets that should be loaded when the request is about an
 	 * archive page.
 	 *
 	 * @return Description[] An array of Description instances.
 	 */
-	public static function get(): array
-	{
+	public static function get(): array {
 		if ( ! is_archive() ) {
 			return array();
 		}
