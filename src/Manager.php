@@ -29,9 +29,7 @@ class Manager {
 	 * @return Asset[] The filtered assets.
 	 */
 	public static function get_assets_filtered( array $assets, string $for_location, array $output_modes ): array {
-		$rules = self::OUTPUT_RULES;
-
-		return array_filter( $assets, function ( $asset ) use ( $for_location, $output_modes, $rules ) {
+		return array_filter( $assets, function ( $asset ) use ( $for_location, $output_modes ) {
 			$type     = $asset->get_type();
 			$source   = SourceFlag::get_detected_value( $asset->get_flags(), 'external' );
 			$location = LocationFlag::get_detected_value( $asset->get_flags(), 'head' );
@@ -41,12 +39,9 @@ class Manager {
 				return false;
 			}
 
-			// Filter out this asset if its type is not supported.
-			if ( ! isset( $rules[ $type ] ) ) {
-				return false;
-			}
+			$rules = self::OUTPUT_RULES[ $type ] ?? array();
 
-			foreach ( $rules[ $type ] as $rule ) {
+			foreach ( $rules as $rule ) {
 				if ( $rule['source'] === $source && $rule['location'] === $location ) {
 					if ( in_array( $rule['output_mode'], $output_modes ) ) {
 						return true;
