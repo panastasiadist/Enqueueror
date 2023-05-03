@@ -2,16 +2,15 @@
 
 namespace panastasiadist\Enqueueror\Utilities;
 
-class Htaccess
-{
+class Htaccess {
 	/**
 	 * Write htaccess rules
 	 *
 	 * @param string[] $paths_to_restrict An array of paths to block public access to using .htaccess rules.
+	 *
 	 * @return void
 	 */
-	public static function write( array $paths_to_restrict )
-	{
+	public static function write( array $paths_to_restrict ) {
 		$htaccess_marker_lines = array(
 			'<IfModule mod_rewrite.c>',
 			'RewriteEngine On',
@@ -44,8 +43,7 @@ class Htaccess
 	 *
 	 * @return void
 	 */
-	public static function delete()
-	{
+	public static function delete() {
 		$htaccess_filepath = get_home_path() . '.htaccess';
 		insert_with_markers( $htaccess_filepath, "Enqueueror", array() );
 	}

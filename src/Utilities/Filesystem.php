@@ -4,8 +4,7 @@ namespace panastasiadist\Enqueueror\Utilities;
 
 use Exception;
 
-class Filesystem
-{
+class Filesystem {
 	/**
 	 * Returns an array of absolute filesystem paths to files found recursively under the provided directory path.
 	 *
@@ -13,14 +12,13 @@ class Filesystem
 	 *
 	 * @return string[] An array of absolute filesystem paths.
 	 */
-	private static function get_file_paths( string $directory_path ): array
-	{
+	private static function get_file_paths( string $directory_path ): array {
 		if ( ! is_readable( $directory_path ) ) {
 			return array();
 		}
 
 		// Stored in ascending order.
-		$file_paths = array();
+		$file_paths           = array();
 		$file_directory_paths = array();
 
 		foreach ( scandir( $directory_path, SCANDIR_SORT_ASCENDING ) as $basename ) {
@@ -59,8 +57,7 @@ class Filesystem
 	 *
 	 * @return array An array of associative arrays, each one containing information about a file.
 	 */
-	public static function get_files( string $directory_path, string $filename_regex ): array
-	{
+	public static function get_files( string $directory_path, string $filename_regex ): array {
 		$matched_files = array();
 
 		$file_paths = self::get_file_paths( $directory_path );
@@ -68,7 +65,7 @@ class Filesystem
 		foreach ( $file_paths as $file_path ) {
 			$info = pathinfo( $file_path );
 
-			if ( preg_match( $filename_regex, $info[ 'basename' ] ) ) {
+			if ( preg_match( $filename_regex, $info['basename'] ) ) {
 				$matched_files[] = $info;
 			}
 		}
