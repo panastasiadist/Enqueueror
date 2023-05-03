@@ -1,13 +1,12 @@
 <?php
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace panastasiadist\Enqueueror\Base;
 
 /**
  * Represents information about an asset file candidate for processing.
  */
-class Asset
-{
+class Asset {
 	private $type;
 	private $extension;
 	private $absolute_filepath;
@@ -34,17 +33,17 @@ class Asset
 		string $filename,
 		string $context,
 		string $language_code,
-		array $flags)
-	{
-		$this->type = $type;
-		$this->extension = $extension;
+		array $flags
+	) {
+		$this->type              = $type;
+		$this->extension         = $extension;
 		$this->absolute_filepath = $absolute_filepath;
 		$this->relative_filepath = $relative_filepath;
-		$this->filename = $filename;
-		$this->context = $context;
-		$this->language_code = $language_code;
-		$this->flags = $flags;
-		$this->basename = basename( $absolute_filepath );
+		$this->filename          = $filename;
+		$this->context           = $context;
+		$this->language_code     = $language_code;
+		$this->flags             = $flags;
+		$this->basename          = basename( $absolute_filepath );
 	}
 
 	/**
@@ -52,8 +51,7 @@ class Asset
 	 *
 	 * @return string
 	 */
-	public function get_type(): string
-	{
+	public function get_type(): string {
 		return $this->type;
 	}
 
@@ -64,8 +62,7 @@ class Asset
 	 *
 	 * @return string
 	 */
-	public function get_extension(): string
-	{
+	public function get_extension(): string {
 		return $this->extension;
 	}
 
@@ -74,8 +71,7 @@ class Asset
 	 *
 	 * @return string
 	 */
-	public function get_absolute_filepath(): string
-	{
+	public function get_absolute_filepath(): string {
 		return $this->absolute_filepath;
 	}
 
@@ -84,8 +80,7 @@ class Asset
 	 *
 	 * @return string
 	 */
-	public function get_relative_filepath(): string
-	{
+	public function get_relative_filepath(): string {
 		return $this->relative_filepath;
 	}
 
@@ -94,8 +89,7 @@ class Asset
 	 *
 	 * @return string
 	 */
-	public function get_basename(): string
-	{
+	public function get_basename(): string {
 		return $this->basename;
 	}
 
@@ -104,8 +98,7 @@ class Asset
 	 *
 	 * @return string
 	 */
-	public function get_filename(): string
-	{
+	public function get_filename(): string {
 		return $this->filename;
 	}
 
@@ -114,8 +107,7 @@ class Asset
 	 *
 	 * @return string Returns 'global' or 'current'.
 	 */
-	public function get_context(): string
-	{
+	public function get_context(): string {
 		return $this->context;
 	}
 
@@ -124,8 +116,7 @@ class Asset
 	 *
 	 * @return string Returns 'all' or a language code.
 	 */
-	public function get_language_code(): string
-	{
+	public function get_language_code(): string {
 		return $this->language_code;
 	}
 
@@ -134,8 +125,7 @@ class Asset
 	 *
 	 * @return string[]
 	 */
-	public function get_flags(): array
-	{
+	public function get_flags(): array {
 		return $this->flags;
 	}
 }

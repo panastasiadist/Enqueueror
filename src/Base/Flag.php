@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace panastasiadist\Enqueueror\Base;
 
@@ -9,8 +9,7 @@ namespace panastasiadist\Enqueueror\Base;
  * A flag may take several values. However, each value is globally unique.
  * In other words, a flag's value is unique to it and not applicable to any other flag.
  */
-class Flag
-{
+class Flag {
 	protected static $name = '';
 	protected static $supported_values = array();
 
@@ -19,8 +18,7 @@ class Flag
 	 *
 	 * @return string
 	 */
-	public static function get_name(): string
-	{
+	public static function get_name(): string {
 		return static::$name;
 	}
 
@@ -31,11 +29,12 @@ class Flag
 	 * @param string[] $values The values to check against.
 	 * @param string $default An optional default value to be returned if a value supported by the flag is not found in
 	 * the provided array of values.
+	 *
 	 * @return string The found flag value or the default value if none flag value has been found.
 	 */
-	public static function get_detected_value( array $values, string $default = '' )
-	{
+	public static function get_detected_value( array $values, string $default = '' ): string {
 		$common = array_intersect( $values, static::$supported_values );
+
 		return ( ! empty( $common ) ) ? array_pop( $common ) : $default;
 	}
 }

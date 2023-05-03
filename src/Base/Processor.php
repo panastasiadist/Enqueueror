@@ -7,15 +7,13 @@ namespace panastasiadist\Enqueueror\Base;
  * An asset processor supports specific asset types and file extensions.
  * It reads & process a supported asset's file, returning an absolute path to the (processed) file.
  */
-class Processor
-{
+class Processor {
 	/**
 	 * Override to return an array of asset file extensions supported by the processor.
 	 *
 	 * @return string[] Array of extensions supported by the processor.
 	 */
-	public static function get_supported_extensions(): array
-	{
+	public static function get_supported_extensions(): array {
 		return array();
 	}
 
@@ -24,8 +22,7 @@ class Processor
 	 *
 	 * @return string The asset type supported by the processor.
 	 */
-	public static function get_supported_asset_type(): string
-	{
+	public static function get_supported_asset_type(): string {
 		return '';
 	}
 
@@ -33,10 +30,10 @@ class Processor
 	 * Returns the absolute filesystem path to an asset's file.
 	 *
 	 * @param string $asset_file_path The absolute filesystem path to an asset file to process.
+	 *
 	 * @return string|false Absolute filesystem path to the provided asset's file. False on failure.
 	 */
-	public static function get_processed_filepath( string $asset_file_path )
-	{
+	public static function get_processed_filepath( string $asset_file_path ) {
 		if ( is_readable( $asset_file_path ) ) {
 			return $asset_file_path;
 		}
@@ -48,12 +45,12 @@ class Processor
 	 * Returns the header values found in the provided asset file.
 	 *
 	 * @param string $asset_file_path An Asset instance of an asset file to return its header values.
+	 *
 	 * @return array|bool An associative array containing directive => value pairs as found in the asset's file header.
 	 * Empty if no header section or no header values are specified in the asset's file.
 	 * False if unable to read the contents of the provided file path.
 	 */
-	public static function get_header_values( string $asset_file_path ): array
-	{
+	public static function get_header_values( string $asset_file_path ): array {
 		$content = file_get_contents( $asset_file_path );
 
 		if ( false === $content ) {
@@ -62,7 +59,7 @@ class Processor
 
 		$fields = array();
 
-		$stop = false;
+		$stop  = false;
 		$start = mb_strpos( $content, '/*' );
 
 		if ( false !== $start ) {
@@ -81,8 +78,8 @@ class Processor
 			$matches = array();
 
 			if ( preg_match( '/[*\h\t]*([a-zA-Z]+)[\h\t]*:([^*]+)\**/', $line, $matches ) ) {
-				$name = $matches[1];
-				$value = $matches[2];
+				$name            = $matches[1];
+				$value           = $matches[2];
 				$fields[ $name ] = $value;
 			}
 		}

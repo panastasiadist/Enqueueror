@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace panastasiadist\Enqueueror\Base;
 
@@ -9,8 +9,7 @@ use panastasiadist\Enqueueror\Base\Description;
 /**
  * Abstract class for classes providing descriptors.
  */
-abstract class Descriptor
-{
+abstract class Descriptor {
 	/**
 	 * Instructs the multilingual mechanism (if any) to switch to the language specified by the provided language code.
 	 *
@@ -18,8 +17,7 @@ abstract class Descriptor
 	 *
 	 * @return void
 	 */
-	private static function switch_language( string $language_code )
-	{
+	private static function switch_language( string $language_code ) {
 		do_action( 'wpml_switch_language', $language_code );
 	}
 
@@ -28,8 +26,7 @@ abstract class Descriptor
 	 *
 	 * @return mixed|null
 	 */
-	protected static function get_default_language_code()
-	{
+	protected static function get_default_language_code() {
 		return apply_filters( 'wpml_default_language', null );
 	}
 
@@ -38,8 +35,7 @@ abstract class Descriptor
 	 *
 	 * @return mixed|null
 	 */
-	protected static function get_current_language_code()
-	{
+	protected static function get_current_language_code() {
 		return apply_filters( 'wpml_current_language', null );
 	}
 
@@ -49,17 +45,17 @@ abstract class Descriptor
 	 * array of Description instances is returned unmodified.
 	 *
 	 * @param Description[] $descriptions The initial array of Description instances to enrich.
+	 *
 	 * @return Description[] The enriched array of Description instances.
 	 */
-	protected static function get_language_enriched_descriptors( array $descriptions ): array
-	{
+	protected static function get_language_enriched_descriptors( array $descriptions ): array {
 		$current_language_code = self::get_current_language_code();
 
 		if ( ! $current_language_code ) {
 			return $descriptions;
 		}
 
-		return array_merge( $descriptions, array_map( function( $description ) use ( $current_language_code ) {
+		return array_merge( $descriptions, array_map( function ( $description ) use ( $current_language_code ) {
 			return new Description(
 				$description->get_pattern() . '-' . $current_language_code,
 				$description->get_context(),
@@ -77,8 +73,7 @@ abstract class Descriptor
 	 *
 	 * @return \WP_Post|\WP_Term
 	 */
-	protected static function get_default_language_object( $queried_object )
-	{
+	protected static function get_default_language_object( $queried_object ) {
 		$default_language_code = self::get_default_language_code();
 		$current_language_code = self::get_current_language_code();
 

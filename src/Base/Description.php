@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace panastasiadist\Enqueueror\Base;
 
@@ -8,8 +8,7 @@ use InvalidArgumentException;
 /**
  * Represents information about an asset file which is candidate for processing.
  */
-class Description
-{
+class Description {
 	private $pattern;
 	private $context;
 	private $language_code;
@@ -20,18 +19,17 @@ class Description
 	 * @param string $language_code The language's code targeted by the asset's name.
 	 * Valid values are 'all' or a language code
 	 */
-	public function __construct( string $pattern, string $context = 'current', string $language_code = 'all' )
-	{
+	public function __construct( string $pattern, string $context = 'current', string $language_code = 'all' ) {
 		if ( 'current' !== $context && 'global' !== $context ) {
-			throw new InvalidArgumentException( "Invalid context '$context' provided");
+			throw new InvalidArgumentException( "Invalid context '$context' provided" );
 		}
 
 		if ( '' === $language_code ) {
-			throw new InvalidArgumentException( "No language code provided");
+			throw new InvalidArgumentException( "No language code provided" );
 		}
 
-		$this->pattern = $pattern;
-		$this->context = $context;
+		$this->pattern       = $pattern;
+		$this->context       = $context;
 		$this->language_code = $language_code;
 	}
 
@@ -40,8 +38,7 @@ class Description
 	 *
 	 * @return string
 	 */
-	public function get_pattern(): string
-	{
+	public function get_pattern(): string {
 		return $this->pattern;
 	}
 
@@ -50,8 +47,7 @@ class Description
 	 *
 	 * @return string Returns 'global' or 'current'.
 	 */
-	public function get_context(): string
-	{
+	public function get_context(): string {
 		return $this->context;
 	}
 
@@ -60,8 +56,7 @@ class Description
 	 *
 	 * @return string
 	 */
-	public function get_language_code(): string
-	{
+	public function get_language_code(): string {
 		return $this->language_code;
 	}
 }
