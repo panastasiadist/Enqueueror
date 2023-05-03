@@ -7,15 +7,13 @@ use panastasiadist\Enqueueror\Base\Processor;
 /**
  * Processor supporting .css.php files for stylesheets.
  */
-class Php extends Processor
-{
+class Php extends Processor {
 	/**
 	 * Returns the asset type supported by the processor.
 	 *
 	 * @return string Returns 'stylesheets'.
 	 */
-	public static function get_supported_asset_type(): string
-	{
+	public static function get_supported_asset_type(): string {
 		return 'stylesheets';
 	}
 
@@ -24,8 +22,7 @@ class Php extends Processor
 	 *
 	 * @return string[] Array containing the string 'css.php'.
 	 */
-	public static function get_supported_extensions(): array
-	{
+	public static function get_supported_extensions(): array {
 		return array( 'css.php' );
 	}
 
@@ -33,10 +30,10 @@ class Php extends Processor
 	 * Returns the absolute filesystem path to an asset's PHP processed code file.
 	 *
 	 * @param string $asset_file_path The absolute filesystem path to an asset file to process.
+	 *
 	 * @return string|false Absolute filesystem path to the provided asset's processed code file. False on failure.
 	 */
-	public static function get_processed_filepath( string $asset_file_path )
-	{
+	public static function get_processed_filepath( string $asset_file_path ) {
 		if ( is_readable( $asset_file_path ) ) {
 			$file_path = tempnam( sys_get_temp_dir(), 'enq' );
 
