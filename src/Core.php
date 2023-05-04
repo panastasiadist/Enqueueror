@@ -74,7 +74,7 @@ class Core {
 		add_action( 'wp_head', array( $this, 'output_head_internal_assets' ) );
 
 		// Link asset files or output raw asset code in the <body> section of the HTML document.
-		add_action( 'get_footer', array( $this, 'output_footer_assets' ) );
+		add_action( 'wp_footer', array( $this, 'output_footer_assets' ) );
 
 		// Update .htaccess with useful stuff when the active theme changes while the plugin is already active.
 		add_action( 'switch_theme', array( $this, 'write_htaccess' ), 10, 0 );
