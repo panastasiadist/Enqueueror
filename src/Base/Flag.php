@@ -11,6 +11,7 @@ namespace panastasiadist\Enqueueror\Base;
  */
 class Flag {
 	protected static $name = '';
+	protected static $default_value = '';
 	protected static $supported_values = array();
 
 	/**
@@ -33,6 +34,7 @@ class Flag {
 	 * @return string The found flag value or the default value if none flag value has been found.
 	 */
 	public static function get_detected_value( array $values, string $default = '' ): string {
+		$default = $default ?: static::$default_value;
 		$common = array_intersect( $values, static::$supported_values );
 
 		return ( ! empty( $common ) ) ? array_pop( $common ) : $default;

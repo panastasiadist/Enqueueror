@@ -151,10 +151,10 @@ class Core {
 
 		foreach ( $assets as $asset ) {
 			$type     = $asset->get_type();
-			$source   = SourceFlag::get_detected_value( $asset->get_flags(), 'external' );
-			$location = LocationFlag::get_detected_value( $asset->get_flags(), 'head' );
+			$source   = $asset->get_flag( SourceFlag::get_name() );
+			$location = $asset->get_flag( LocationFlag::get_name() );
 
-			if ( 'external' === $source ) {
+			if ( SourceFlag::VALUE_EXTERNAL === $source ) {
 				$file_path = $this->get_asset_serving_filepath( $asset );
 
 				if ( false === $file_path ) {
@@ -177,9 +177,9 @@ class Core {
 					} else if ( 0 === mb_strpos( $dependency, '/' ) ) {
 						// Check if the dependency is an asset and act accordingly.
 						$dependency_asset        = $this->explorer->get_asset_for_file_path( $dependency, $type );
-						$dependency_asset_source = SourceFlag::get_detected_value( $dependency_asset->get_flags(), 'external' );
+						$dependency_asset_source = $dependency_asset->get_flag( SourceFlag::get_name() );
 
-						if ( 'external' === $dependency_asset_source ) {
+						if ( SourceFlag::VALUE_EXTERNAL === $dependency_asset_source ) {
 							// Only external assets are supported, so they are able to be enqueued and be part of
 							// WordPress dependency resolution.
 							$dependencies_assets[] = $dependency_asset;
@@ -192,7 +192,7 @@ class Core {
 				foreach ( $dependencies_urls as $dependency_url ) {
 					if ( ! in_array( $dependency_url, $enqueued_asset_handles ) ) {
 						if ( 'scripts' === $type ) {
-							wp_enqueue_script( $dependency_url, $dependency_url, array(), false, 'footer' === $location );
+							wp_enqueue_script( $dependency_url, $dependency_url, array(), false, LocationFlag::VALUE_FOOTER === $location );
 							$enqueued_asset_handles[] = $dependency_url;
 						} elseif ( 'stylesheets' === $type ) {
 							wp_enqueue_style( $dependency_url, $dependency_url );
@@ -205,14 +205,14 @@ class Core {
 
 				if ( ! in_array( $handle, $enqueued_asset_handles ) ) {
 					if ( 'scripts' === $type ) {
-						wp_enqueue_script( $handle, $file_url, $dependencies, filemtime( $file_path ), 'footer' === $location );
+						wp_enqueue_script( $handle, $file_url, $dependencies, filemtime( $file_path ), LocationFlag::VALUE_FOOTER === $location );
 						$enqueued_asset_handles[] = $handle;
 					} elseif ( 'stylesheets' === $type ) {
 						wp_enqueue_style( $handle, $file_url, $dependencies, filemtime( $file_path ) );
 						$enqueued_asset_handles[] = $handle;
 					}
 				}
-			} elseif ( 'internal' === $source ) {
+			} elseif ( SourceFlag::VALUE_INTERNAL === $source ) {
 				$file_path = $this->get_asset_serving_filepath( $asset );
 
 				if ( false === $file_path ) {
@@ -394,7 +394,7 @@ class Core {
 	 * @return void
 	 */
 	public function output_head_enqueued_assets() {
-		$this->enqueue( 'head', [ 'enqueue' ] );
+		$this->enqueue( LocationFlag::VALUE_HEAD, [ 'enqueue' ] );
 	}
 
 	/**
@@ -403,7 +403,7 @@ class Core {
 	 * @return void
 	 */
 	public function output_head_internal_assets() {
-		$this->enqueue( 'head', array( 'print' ) );
+		$this->enqueue( LocationFlag::VALUE_HEAD, array( 'print' ) );
 	}
 
 	/**
@@ -412,6 +412,6 @@ class Core {
 	 * @return void
 	 */
 	public function output_footer_assets() {
-		$this->enqueue( 'footer', array( 'enqueue', 'print' ) );
+		$this->enqueue( LocationFlag::VALUE_FOOTER, array( 'enqueue', 'print' ) );
 	}
 }

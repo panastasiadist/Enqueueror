@@ -121,11 +121,13 @@ class Asset {
 	}
 
 	/**
-	 * Returns a string array containing the asset's flags.
+	 * Returns the value of the provided flag name applicable to the asset.
 	 *
-	 * @return string[]
+	 * @param string $flag The flag's name to return a value for.
+	 *
+	 * @return string A flag value or empty string if the provided flag is not set.
 	 */
-	public function get_flags(): array {
-		return $this->flags;
+	public function get_flag( string $flag ): string {
+		return $this->flags[ $flag ] ?? '';
 	}
 }

@@ -183,7 +183,7 @@ class TestExplorer extends WP_UnitTestCase
 				'relative_filepath' => DIRECTORY_SEPARATOR . 'global.js',
 				'context' => 'global',
 				'language_code' => 'all',
-				'flags' => array(),
+				'flags' => array( 'source' => 'external', 'location' => 'head' ),
 			),
 			array(
 				'type' => 'scripts',
@@ -192,7 +192,7 @@ class TestExplorer extends WP_UnitTestCase
 				'relative_filepath' => DIRECTORY_SEPARATOR . 'type-page-slug-home-en.head.js',
 				'context' => 'current',
 				'language_code' => 'en',
-				'flags' => array( 'head' ),
+				'flags' => array( 'source' => 'external', 'location' => 'head' ),
 			),
 			array(
 				'type' => 'stylesheets',
@@ -201,7 +201,7 @@ class TestExplorer extends WP_UnitTestCase
 				'relative_filepath' => DIRECTORY_SEPARATOR . 'global.css.php',
 				'context' => 'global',
 				'language_code' => 'all',
-				'flags' => array(),
+				'flags' => array( 'source' => 'external', 'location' => 'head' ),
 			),
 			array(
 				'type' => 'stylesheets',
@@ -210,7 +210,7 @@ class TestExplorer extends WP_UnitTestCase
 				'relative_filepath' => DIRECTORY_SEPARATOR . 'type-page-slug-home-el.footer.internal.css.php',
 				'context' => 'current',
 				'language_code' => 'el',
-				'flags' => array( 'footer', 'internal' ),
+				'flags' => array( 'source' => 'internal', 'location' => 'footer' ),
 			),
 		);
 
@@ -234,8 +234,11 @@ class TestExplorer extends WP_UnitTestCase
 			$this->assertEquals( $scenario[ 'relative_filepath' ], $asset->get_relative_filepath() );
 			$this->assertEquals( $scenario[ 'filename' ], $asset->get_filename() );
 			$this->assertEquals( $scenario[ 'context' ], $asset->get_context() );
-			$this->assertEquals( $scenario[ 'flags' ], $asset->get_flags() );
 			$this->assertEquals( basename( $absolute_filepath ), $asset->get_basename() );
+
+			foreach ( $scenario['flags'] as $flag => $value ) {
+				$this->assertEquals( $value, $asset->get_flag( $flag ) );
+			}
 		}
 
 		$this->expectException(Exception::class);

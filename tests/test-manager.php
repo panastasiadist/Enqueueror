@@ -47,7 +47,7 @@ class TestManager extends WP_UnitTestCase
 									basename( $filepath ),
 									$context,
 									$language_code,
-									array( $source, $location )
+									array( 'source' => $source, 'location' => $location )
 								);
 							}
 						}

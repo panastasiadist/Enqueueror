@@ -22,7 +22,7 @@ class TestAsset extends WP_UnitTestCase
 			'file.css',
 			'global',
 			'all',
-			array( 'flag' )
+			array( 'flag' => 'value' )
 		);
 
 		$this->assertEquals( 'stylesheets', $asset->get_type() );
@@ -32,7 +32,7 @@ class TestAsset extends WP_UnitTestCase
 		$this->assertEquals( 'file.css', $asset->get_filename() );
 		$this->assertEquals( 'global', $asset->get_context() );
 		$this->assertEquals( 'all', $asset->get_language_code() );
-		$this->assertEquals( array( 'flag' ), $asset->get_flags() );
+		$this->assertEquals( 'value', $asset->get_flag( 'flag' ) );
 		$this->assertEquals( basename( $absolute_css_filepath ), $asset->get_basename() );
 	}
 }

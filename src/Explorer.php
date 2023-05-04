@@ -14,6 +14,8 @@ use panastasiadist\Enqueueror\Descriptors\Search;
 use panastasiadist\Enqueueror\Descriptors\Term;
 use panastasiadist\Enqueueror\Descriptors\User;
 use panastasiadist\Enqueueror\Utilities\Filesystem;
+use panastasiadist\Enqueueror\Flags\Source as SourceFlag;
+use panastasiadist\Enqueueror\Flags\Location as LocationFlag;
 
 class Explorer {
 	/**
@@ -27,6 +29,11 @@ class Explorer {
 		Search::class,
 		Term::class,
 		User::class,
+	);
+
+	const FLAGS = array(
+		SourceFlag::class,
+		LocationFlag::class,
 	);
 
 	/**
@@ -109,13 +116,18 @@ class Explorer {
 			throw new Exception( "File '{$file[ 'basename' ]}' doesn't have a supported extension" );
 		}
 
-		$flags = explode( '.', $filename_with_flags );
+		$flag_values = explode( '.', $filename_with_flags );
 
-		$filename_without_flags = $flags[0];
+		$filename_without_flags = $flag_values[0];
 
 		// If the array contains one item, then no dots found in the filename, so no flags are present. The only item
 		// returned is the filename.
-		$flags = ( count( $flags ) == 1 ) ? array() : array_slice( $flags, 1 );
+		$flag_values = ( count( $flag_values ) == 1 ) ? array() : array_slice( $flag_values, 1 );
+
+		$flags = array(
+			SourceFlag::get_name()   => SourceFlag::get_detected_value( $flag_values ),
+			LocationFlag::get_name() => LocationFlag::get_detected_value( $flag_values ),
+		);
 
 		$language_code = 'all';
 

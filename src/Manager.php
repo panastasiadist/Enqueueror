@@ -4,20 +4,45 @@ declare( strict_types=1 );
 namespace panastasiadist\Enqueueror;
 
 use panastasiadist\Enqueueror\Base\Asset;
+use panastasiadist\Enqueueror\Flags\Source;
 use panastasiadist\Enqueueror\Flags\Source as SourceFlag;
 use panastasiadist\Enqueueror\Flags\Location as LocationFlag;
 
 class Manager {
 	private const OUTPUT_RULES = array(
 		'scripts'     => array(
-			array( 'location' => 'head', 'source' => 'external', 'output_mode' => 'enqueue' ),
-			array( 'location' => 'head', 'source' => 'internal', 'output_mode' => 'print' ),
-			array( 'location' => 'footer', 'source' => 'external', 'output_mode' => 'enqueue' ),
-			array( 'location' => 'footer', 'source' => 'internal', 'output_mode' => 'print' ),
+			array(
+				'location'    => LocationFlag::VALUE_HEAD,
+				'source'      => SourceFlag::VALUE_EXTERNAL,
+				'output_mode' => 'enqueue'
+			),
+			array(
+				'location'    => LocationFlag::VALUE_HEAD,
+				'source'      => SourceFlag::VALUE_INTERNAL,
+				'output_mode' => 'print'
+			),
+			array(
+				'location'    => LocationFlag::VALUE_FOOTER,
+				'source'      => SourceFlag::VALUE_EXTERNAL,
+				'output_mode' => 'enqueue'
+			),
+			array(
+				'location'    => LocationFlag::VALUE_FOOTER,
+				'source'      => SourceFlag::VALUE_INTERNAL,
+				'output_mode' => 'print'
+			),
 		),
 		'stylesheets' => array(
-			array( 'location' => 'head', 'source' => 'external', 'output_mode' => 'enqueue' ),
-			array( 'location' => 'head', 'source' => 'internal', 'output_mode' => 'print' ),
+			array(
+				'location'    => LocationFlag::VALUE_HEAD,
+				'source'      => SourceFlag::VALUE_EXTERNAL,
+				'output_mode' => 'enqueue'
+			),
+			array(
+				'location'    => LocationFlag::VALUE_HEAD,
+				'source'      => SourceFlag::VALUE_INTERNAL,
+				'output_mode' => 'print'
+			),
 		),
 	);
 
@@ -31,8 +56,8 @@ class Manager {
 	public static function get_assets_filtered( array $assets, string $for_location, array $output_modes ): array {
 		return array_filter( $assets, function ( $asset ) use ( $for_location, $output_modes ) {
 			$type     = $asset->get_type();
-			$source   = SourceFlag::get_detected_value( $asset->get_flags(), 'external' );
-			$location = LocationFlag::get_detected_value( $asset->get_flags(), 'head' );
+			$source   = $asset->get_flag( SourceFlag::get_name() );
+			$location = $asset->get_flag( LocationFlag::get_name() );
 
 			// Filter out this asset if its designated location does not match the requested one.
 			if ( $for_location != $location ) {
