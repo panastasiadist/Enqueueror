@@ -85,7 +85,7 @@ class TestManager extends WP_UnitTestCase
 		}
 
 		foreach ( Manager::get_assets_filtered( $assets, 'footer', array( 'print' ) ) as $asset ) {
-			$this->assertMatchesRegularExpression( "/scripts-([a-z\-.]*)-footer-internal/", $asset->get_absolute_filepath(), "Return only script assets with 'footer' and 'internal' flags." );
+			$this->assertMatchesRegularExpression( "/(scripts|stylesheets)-([a-z\-.]*)-footer-internal/", $asset->get_absolute_filepath(), "Return only script or stylesheet assets with 'footer' and 'internal' flags." );
 		}
 	}
 

@@ -43,6 +43,11 @@ class Manager {
 				'source'      => SourceFlag::VALUE_INTERNAL,
 				'output_mode' => 'print'
 			),
+			array(
+				'location'    => LocationFlag::VALUE_FOOTER,
+				'source'      => SourceFlag::VALUE_INTERNAL,
+				'output_mode' => 'print'
+			),
 		),
 	);
 
