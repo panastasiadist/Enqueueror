@@ -81,7 +81,7 @@ class TestManager extends WP_UnitTestCase
 		}
 
 		foreach ( Manager::get_assets_filtered( $assets, 'footer', array( 'enqueue' ) ) as $asset ) {
-			$this->assertMatchesRegularExpression( "/scripts-([a-z\-.]*)-footer-external/", $asset->get_absolute_filepath(), "Return only script assets with 'footer' and 'external' flags." );
+			$this->assertMatchesRegularExpression( "/(scripts|stylesheets)-([a-z\-.]*)-footer-external/", $asset->get_absolute_filepath(), "Return only script or stylesheet assets with 'footer' and 'external' flags." );
 		}
 
 		foreach ( Manager::get_assets_filtered( $assets, 'footer', array( 'print' ) ) as $asset ) {

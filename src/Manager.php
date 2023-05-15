@@ -45,6 +45,11 @@ class Manager {
 			),
 			array(
 				'location'    => LocationFlag::VALUE_FOOTER,
+				'source'      => SourceFlag::VALUE_EXTERNAL,
+				'output_mode' => 'enqueue'
+			),
+			array(
+				'location'    => LocationFlag::VALUE_FOOTER,
 				'source'      => SourceFlag::VALUE_INTERNAL,
 				'output_mode' => 'print'
 			),
