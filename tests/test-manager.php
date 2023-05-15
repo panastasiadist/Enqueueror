@@ -68,23 +68,23 @@ class TestManager extends WP_UnitTestCase
 	{
 		$assets = $this->generate_assets( $this->get_asset_generation_configuration() );
 
-		foreach ( Manager::get_assets_filtered( $assets, 'head', array( 'enqueue' ) ) as $asset ) {
+		foreach ( Manager::get_assets_filtered( $assets, 'head', array( 'external' ) ) as $asset ) {
 			$this->assertMatchesRegularExpression( "/(scripts|stylesheets)-([a-z\-.]*)-head-external/", $asset->get_absolute_filepath(), "Return only script or stylesheet assets with 'head' and 'external' flags." );
 		}
 
-		foreach ( Manager::get_assets_filtered( $assets, 'head', array( 'print' ) ) as $asset ) {
+		foreach ( Manager::get_assets_filtered( $assets, 'head', array( 'internal' ) ) as $asset ) {
 			$this->assertMatchesRegularExpression( "/(scripts|stylesheets)-([a-z\-.]*)-head-internal/", $asset->get_absolute_filepath(), "Return only script or stylesheet assets with 'head' and 'internal' flags." );
 		}
 
-		foreach ( Manager::get_assets_filtered( $assets, 'head', array( 'enqueue', 'print' ) ) as $asset ) {
+		foreach ( Manager::get_assets_filtered( $assets, 'head', array( 'external', 'internal' ) ) as $asset ) {
 			$this->assertMatchesRegularExpression( "/(scripts|stylesheets)-([a-z\-.]*)-head-(external|internal)/", $asset->get_absolute_filepath(), "Return only script or stylesheet assets with 'head', 'external' or 'internal' flags." );
 		}
 
-		foreach ( Manager::get_assets_filtered( $assets, 'footer', array( 'enqueue' ) ) as $asset ) {
+		foreach ( Manager::get_assets_filtered( $assets, 'footer', array( 'external' ) ) as $asset ) {
 			$this->assertMatchesRegularExpression( "/(scripts|stylesheets)-([a-z\-.]*)-footer-external/", $asset->get_absolute_filepath(), "Return only script or stylesheet assets with 'footer' and 'external' flags." );
 		}
 
-		foreach ( Manager::get_assets_filtered( $assets, 'footer', array( 'print' ) ) as $asset ) {
+		foreach ( Manager::get_assets_filtered( $assets, 'footer', array( 'internal' ) ) as $asset ) {
 			$this->assertMatchesRegularExpression( "/(scripts|stylesheets)-([a-z\-.]*)-footer-internal/", $asset->get_absolute_filepath(), "Return only script or stylesheet assets with 'footer' and 'internal' flags." );
 		}
 	}

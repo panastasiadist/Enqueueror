@@ -105,11 +105,11 @@ class Core {
 	 * Coordinates the output of assets applicable to the current page.
 	 *
 	 * @param string $for_location Output assets designated only for the requested location.
-	 * @param string[] $output_modes Output assets provided they are supported by the requested output modes.
+	 * @param string[] $with_sources Output assets with the provided sources.
 	 *
 	 * @return void
 	 */
-	private function enqueue( string $for_location, array $output_modes ) {
+	private function enqueue( string $for_location, array $with_sources ) {
 		/**
 		 * A bag of discovered assets, accessed by their type.
 		 *
@@ -128,7 +128,7 @@ class Core {
 
 		foreach ( array( 'scripts', 'stylesheets' ) as $type ) {
 			$assets = $asset_type_to_discovered_assets[ $type ];
-			$assets = Manager::get_assets_filtered( $assets, $for_location, $output_modes );
+			$assets = Manager::get_assets_filtered( $assets, $for_location, $with_sources );
 			$assets = Manager::get_assets_sorted( $assets );
 
 			$this->output_assets( $assets );
@@ -192,7 +192,7 @@ class Core {
 				foreach ( $dependencies_urls as $dependency_url ) {
 					if ( ! in_array( $dependency_url, $enqueued_asset_handles ) ) {
 						if ( 'scripts' === $type ) {
-							wp_enqueue_script( $dependency_url, $dependency_url, array(), false, LocationFlag::VALUE_FOOTER === $location );
+							wp_enqueue_script( $dependency_url, $dependency_url );
 							$enqueued_asset_handles[] = $dependency_url;
 						} elseif ( 'stylesheets' === $type ) {
 							wp_enqueue_style( $dependency_url, $dependency_url );
@@ -205,7 +205,7 @@ class Core {
 
 				if ( ! in_array( $handle, $enqueued_asset_handles ) ) {
 					if ( 'scripts' === $type ) {
-						wp_enqueue_script( $handle, $file_url, $dependencies, filemtime( $file_path ), LocationFlag::VALUE_FOOTER === $location );
+						wp_enqueue_script( $handle, $file_url, $dependencies, filemtime( $file_path ) );
 						$enqueued_asset_handles[] = $handle;
 					} elseif ( 'stylesheets' === $type ) {
 						wp_enqueue_style( $handle, $file_url, $dependencies, filemtime( $file_path ) );
@@ -394,7 +394,7 @@ class Core {
 	 * @return void
 	 */
 	public function output_head_enqueued_assets() {
-		$this->enqueue( LocationFlag::VALUE_HEAD, [ 'enqueue' ] );
+		$this->enqueue( LocationFlag::VALUE_HEAD, array( SourceFlag::VALUE_EXTERNAL ) );
 	}
 
 	/**
@@ -403,7 +403,7 @@ class Core {
 	 * @return void
 	 */
 	public function output_head_internal_assets() {
-		$this->enqueue( LocationFlag::VALUE_HEAD, array( 'print' ) );
+		$this->enqueue( LocationFlag::VALUE_HEAD, array( SourceFlag::VALUE_INTERNAL ) );
 	}
 
 	/**
@@ -412,6 +412,6 @@ class Core {
 	 * @return void
 	 */
 	public function output_footer_assets() {
-		$this->enqueue( LocationFlag::VALUE_FOOTER, array( 'enqueue', 'print' ) );
+		$this->enqueue( LocationFlag::VALUE_FOOTER, array( SourceFlag::VALUE_EXTERNAL, SourceFlag::VALUE_INTERNAL ) );
 	}
 }

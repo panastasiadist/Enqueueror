@@ -9,82 +9,19 @@ use panastasiadist\Enqueueror\Flags\Source as SourceFlag;
 use panastasiadist\Enqueueror\Flags\Location as LocationFlag;
 
 class Manager {
-	private const OUTPUT_RULES = array(
-		'scripts'     => array(
-			array(
-				'location'    => LocationFlag::VALUE_HEAD,
-				'source'      => SourceFlag::VALUE_EXTERNAL,
-				'output_mode' => 'enqueue'
-			),
-			array(
-				'location'    => LocationFlag::VALUE_HEAD,
-				'source'      => SourceFlag::VALUE_INTERNAL,
-				'output_mode' => 'print'
-			),
-			array(
-				'location'    => LocationFlag::VALUE_FOOTER,
-				'source'      => SourceFlag::VALUE_EXTERNAL,
-				'output_mode' => 'enqueue'
-			),
-			array(
-				'location'    => LocationFlag::VALUE_FOOTER,
-				'source'      => SourceFlag::VALUE_INTERNAL,
-				'output_mode' => 'print'
-			),
-		),
-		'stylesheets' => array(
-			array(
-				'location'    => LocationFlag::VALUE_HEAD,
-				'source'      => SourceFlag::VALUE_EXTERNAL,
-				'output_mode' => 'enqueue'
-			),
-			array(
-				'location'    => LocationFlag::VALUE_HEAD,
-				'source'      => SourceFlag::VALUE_INTERNAL,
-				'output_mode' => 'print'
-			),
-			array(
-				'location'    => LocationFlag::VALUE_FOOTER,
-				'source'      => SourceFlag::VALUE_EXTERNAL,
-				'output_mode' => 'enqueue'
-			),
-			array(
-				'location'    => LocationFlag::VALUE_FOOTER,
-				'source'      => SourceFlag::VALUE_INTERNAL,
-				'output_mode' => 'print'
-			),
-		),
-	);
-
 	/**
 	 * @param Asset[] $assets An array of Asset instances to filter according to the rest of the arguments.
 	 * @param string $for_location Return only assets meant to be used in the provided location.
-	 * @param string[] $output_modes Return only assets whose output mode is compatible with the provided ones.
+	 * @param string[] $with_sources Return only assets with the provided sources.
 	 *
 	 * @return Asset[] The filtered assets.
 	 */
-	public static function get_assets_filtered( array $assets, string $for_location, array $output_modes ): array {
-		return array_filter( $assets, function ( $asset ) use ( $for_location, $output_modes ) {
-			$type     = $asset->get_type();
+	public static function get_assets_filtered( array $assets, string $for_location, array $with_sources ): array {
+		return array_filter( $assets, function ( $asset ) use ( $for_location, $with_sources ) {
 			$source   = $asset->get_flag( SourceFlag::get_name() );
 			$location = $asset->get_flag( LocationFlag::get_name() );
 
-			// Filter out this asset if its designated location does not match the requested one.
-			if ( $for_location != $location ) {
-				return false;
-			}
-
-			$rules = self::OUTPUT_RULES[ $type ] ?? array();
-
-			foreach ( $rules as $rule ) {
-				if ( $rule['source'] === $source && $rule['location'] === $location ) {
-					if ( in_array( $rule['output_mode'], $output_modes ) ) {
-						return true;
-					}
-				}
-			}
-
-			return false;
+			return $for_location === $location && in_array( $source, $with_sources );
 		} );
 	}
 
