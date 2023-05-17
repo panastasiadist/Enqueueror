@@ -12,16 +12,14 @@ class Manager {
 	/**
 	 * @param Asset[] $assets An array of Asset instances to filter according to the rest of the arguments.
 	 * @param string $for_location Return only assets meant to be used in the provided location.
-	 * @param string[] $with_sources Return only assets with the provided sources.
 	 *
 	 * @return Asset[] The filtered assets.
 	 */
-	public static function get_assets_filtered( array $assets, string $for_location, array $with_sources ): array {
-		return array_filter( $assets, function ( $asset ) use ( $for_location, $with_sources ) {
-			$source   = $asset->get_flag( SourceFlag::get_name() );
+	public static function get_assets_filtered( array $assets, string $for_location ): array {
+		return array_filter( $assets, function ( $asset ) use ( $for_location ) {
 			$location = $asset->get_flag( LocationFlag::get_name() );
 
-			return $for_location === $location && in_array( $source, $with_sources );
+			return $for_location === $location;
 		} );
 	}
 

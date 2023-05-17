@@ -107,7 +107,7 @@ class Core {
 	 *
 	 * @return void
 	 */
-	private function enqueue( string $for_location, array $with_sources ) {
+	private function enqueue( string $for_location ) {
 		/**
 		 * A bag of discovered assets, accessed by their type.
 		 *
@@ -126,7 +126,7 @@ class Core {
 
 		foreach ( array( 'scripts', 'stylesheets' ) as $type ) {
 			$assets = $asset_type_to_discovered_assets[ $type ];
-			$assets = Manager::get_assets_filtered( $assets, $for_location, $with_sources );
+			$assets = Manager::get_assets_filtered( $assets, $for_location );
 			$assets = Manager::get_assets_sorted( $assets );
 
 			$this->output_assets( $assets );
@@ -403,7 +403,7 @@ class Core {
 	 * @return void
 	 */
 	public function output_head_assets() {
-		$this->enqueue( LocationFlag::VALUE_HEAD, array( SourceFlag::VALUE_EXTERNAL, SourceFlag::VALUE_INTERNAL ) );
+		$this->enqueue( LocationFlag::VALUE_HEAD );
 	}
 
 	/**
@@ -412,6 +412,6 @@ class Core {
 	 * @return void
 	 */
 	public function output_footer_assets() {
-		$this->enqueue( LocationFlag::VALUE_FOOTER, array( SourceFlag::VALUE_EXTERNAL, SourceFlag::VALUE_INTERNAL ) );
+		$this->enqueue( LocationFlag::VALUE_FOOTER );
 	}
 }
