@@ -1,4 +1,5 @@
 <?php
+
 declare( strict_types=1 );
 
 namespace panastasiadist\Enqueueror;
@@ -67,13 +68,10 @@ class Core {
 
 		$this->explorer = new Explorer( $asset_type_to_config );
 
-		// Link asset files in the <head> section of the HTML document.
-		add_action( 'wp_enqueue_scripts', array( $this, 'output_head_enqueued_assets' ) );
+		// Output assets in the <head> section of the HTML document.
+		add_action( 'wp_enqueue_scripts', array( $this, 'output_head_assets' ) );
 
-		// Output raw asset code in the <head> section of the HTML document.
-		add_action( 'wp_head', array( $this, 'output_head_internal_assets' ) );
-
-		// Link asset files or output raw asset code in the <body> section of the HTML document.
+		// Output assets in the <body> section of the HTML document.
 		add_action( 'wp_footer', array( $this, 'output_footer_assets' ) );
 
 		// Update .htaccess with useful stuff when the active theme changes while the plugin is already active.
@@ -143,87 +141,98 @@ class Core {
 	 * @return void
 	 */
 	private function output_assets( array $assets ) {
-		static $enqueued_asset_handles = null;
-
-		if ( null === $enqueued_asset_handles ) {
-			$enqueued_asset_handles = array();
-		}
+		static $processed_asset_handles = array();
 
 		foreach ( $assets as $asset ) {
-			$type     = $asset->get_type();
-			$source   = $asset->get_flag( SourceFlag::get_name() );
-			$location = $asset->get_flag( LocationFlag::get_name() );
+			$handle = $asset->get_relative_filepath();
 
-			if ( SourceFlag::VALUE_EXTERNAL === $source ) {
-				$file_path = $this->get_asset_serving_filepath( $asset );
+			// An asset may be encountered more than one times due to dependency resolution.
+			// If the asset is already processed, then ignore it. All its dependencies are also already processed.
+			if ( in_array( $handle, $processed_asset_handles ) ) {
+				continue;
+			}
 
-				if ( false === $file_path ) {
-					continue;
-				}
+			$file_path = $this->get_asset_serving_filepath( $asset );
 
+			// No need to continue if unable to read the asset's contents.
+			if ( false === $file_path ) {
+				continue;
+			}
+
+			// Recursively explore any dependencies of the asset and get the handles to the direct dependencies.
+			$dependencies = $this->handle_asset_dependencies( $asset, $processed_asset_handles );
+
+			if ( SourceFlag::VALUE_EXTERNAL === $asset->get_flag( SourceFlag::get_name() ) ) {
 				$file_url = $this->get_url_from_path( $file_path );
 
-				$dependencies        = array();
-				$dependencies_urls   = array();
-				$dependencies_assets = array();
-
-				foreach ( $this->get_asset_dependencies( $asset ) as $dependency ) {
-					$dependencies[] = $dependency;
-
-					$http = 0 === mb_strpos( $dependency, 'http://' ) || 0 === mb_strpos( $dependency, 'https://' );
-
-					if ( $http && filter_var( $dependency, FILTER_VALIDATE_URL ) ) {
-						$dependencies_urls[] = $dependency;
-					} else if ( 0 === mb_strpos( $dependency, '/' ) ) {
-						// Check if the dependency is an asset and act accordingly.
-						$dependency_asset        = $this->explorer->get_asset_for_file_path( $dependency, $type );
-						$dependency_asset_source = $dependency_asset->get_flag( SourceFlag::get_name() );
-
-						if ( SourceFlag::VALUE_EXTERNAL === $dependency_asset_source ) {
-							// Only external assets are supported, so they are able to be enqueued and be part of
-							// WordPress dependency resolution.
-							$dependencies_assets[] = $dependency_asset;
-						}
-					}
+				if ( 'scripts' === $asset->get_type() ) {
+					wp_enqueue_script( $handle, $file_url, $dependencies, filemtime( $file_path ) );
+				} else {
+					// stylesheets
+					wp_enqueue_style( $handle, $file_url, $dependencies, filemtime( $file_path ) );
 				}
-
-				$this->output_assets( $dependencies_assets );
-
-				foreach ( $dependencies_urls as $dependency_url ) {
-					if ( ! in_array( $dependency_url, $enqueued_asset_handles ) ) {
-						if ( 'scripts' === $type ) {
-							wp_enqueue_script( $dependency_url, $dependency_url );
-							$enqueued_asset_handles[] = $dependency_url;
-						} elseif ( 'stylesheets' === $type ) {
-							wp_enqueue_style( $dependency_url, $dependency_url );
-							$enqueued_asset_handles[] = $dependency_url;
-						}
-					}
+			} else {
+				// SourceFlag = internal
+				if ( 'scripts' === $asset->get_type() ) {
+					wp_register_script( $handle, '', $dependencies );
+					wp_enqueue_script( $handle );
+					wp_add_inline_script( $handle, file_get_contents( $file_path ) );
+				} else {
+					// stylesheets
+					wp_register_style( $handle, false, $dependencies );
+					wp_enqueue_style( $handle );
+					wp_add_inline_style( $handle, file_get_contents( $file_path ) );
 				}
+			}
 
-				$handle = $asset->get_relative_filepath();
+			$processed_asset_handles[] = $handle;
+		}
+	}
 
-				if ( ! in_array( $handle, $enqueued_asset_handles ) ) {
-					if ( 'scripts' === $type ) {
-						wp_enqueue_script( $handle, $file_url, $dependencies, filemtime( $file_path ) );
-						$enqueued_asset_handles[] = $handle;
-					} elseif ( 'stylesheets' === $type ) {
-						wp_enqueue_style( $handle, $file_url, $dependencies, filemtime( $file_path ) );
-						$enqueued_asset_handles[] = $handle;
-					}
-				}
-			} elseif ( SourceFlag::VALUE_INTERNAL === $source ) {
-				$file_path = $this->get_asset_serving_filepath( $asset );
+	/**
+	 * Prepares an asset's dependencies to be pushed to the browser and returns the relevant handles.
+	 *
+	 * @param Asset $asset An Asset instance to load its dependencies.
+	 * @param array $processed_asset_handles An array storing the handles of processed resources
+	 *
+	 * @return array An array of handles of the direct dependencies of the provided asset.
+	 */
+	private function handle_asset_dependencies( Asset $asset, array &$processed_asset_handles ): array {
+		$dependencies        = array();
+		$dependencies_urls   = array();
+		$dependencies_assets = array();
 
-				if ( false === $file_path ) {
-					continue;
-				}
+		foreach ( $this->get_asset_dependencies( $asset ) as $dependency ) {
+			$dependencies[] = $dependency;
 
-				echo 'scripts' === $type ? '<script>' : ( 'stylesheets' === $type ? '<style>' : '' );
-				echo file_get_contents( $file_path );
-				echo 'scripts' === $type ? '</script>' : ( 'stylesheets' === $type ? '</style>' : '' );
+			$http = 0 === mb_strpos( $dependency, 'http://' ) || 0 === mb_strpos( $dependency, 'https://' );
+
+			if ( $http && filter_var( $dependency, FILTER_VALIDATE_URL ) ) {
+				$dependencies_urls[] = $dependency;
+			} else if ( 0 === mb_strpos( $dependency, '/' ) ) {
+				// Check if the dependency is an asset and act accordingly.
+				$dependencies_assets[] = $this->explorer->get_asset_for_file_path( $dependency, $asset->get_type() );
 			}
 		}
+
+		$this->output_assets( $dependencies_assets );
+
+		foreach ( $dependencies_urls as $dependency_url ) {
+			if ( in_array( $dependency_url, $processed_asset_handles ) ) {
+				continue;
+			}
+
+			if ( 'scripts' === $asset->get_type() ) {
+				wp_enqueue_script( $dependency_url, $dependency_url );
+			} else {
+				// stylesheets
+				wp_enqueue_style( $dependency_url, $dependency_url );
+			}
+
+			$processed_asset_handles[] = $dependency_url;
+		}
+
+		return $dependencies;
 	}
 
 	/**
@@ -389,25 +398,16 @@ class Core {
 	}
 
 	/**
-	 * Fires the output of assets' code that should be enqueued within the <head> section of the HTML document.
+	 * Fires the output of assets that should be loaded in the <head> section of the HTML document.
 	 *
 	 * @return void
 	 */
-	public function output_head_enqueued_assets() {
-		$this->enqueue( LocationFlag::VALUE_HEAD, array( SourceFlag::VALUE_EXTERNAL ) );
+	public function output_head_assets() {
+		$this->enqueue( LocationFlag::VALUE_HEAD, array( SourceFlag::VALUE_EXTERNAL, SourceFlag::VALUE_INTERNAL ) );
 	}
 
 	/**
-	 * Fires the output of assets' code that should appear within the <head> section of the HTML document.
-	 *
-	 * @return void
-	 */
-	public function output_head_internal_assets() {
-		$this->enqueue( LocationFlag::VALUE_HEAD, array( SourceFlag::VALUE_INTERNAL ) );
-	}
-
-	/**
-	 * Fires the output of assets' code that should appear or be enqueued before the </body> tag of the HTML document.
+	 * Fires the output of assets that should be loaded before the </body> tag of the HTML document.
 	 *
 	 * @return void
 	 */
