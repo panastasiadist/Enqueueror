@@ -4,8 +4,6 @@ declare( strict_types=1 );
 namespace panastasiadist\Enqueueror;
 
 use panastasiadist\Enqueueror\Base\Asset;
-use panastasiadist\Enqueueror\Flags\Source;
-use panastasiadist\Enqueueror\Flags\Source as SourceFlag;
 use panastasiadist\Enqueueror\Flags\Location as LocationFlag;
 
 class Manager {

@@ -31,11 +31,6 @@ class Explorer {
 		User::class,
 	);
 
-	const FLAGS = array(
-		SourceFlag::class,
-		LocationFlag::class,
-	);
-
 	/**
 	 * @var array Associative array: string -> string. Asset type to absolute filesystem directory path.
 	 */
