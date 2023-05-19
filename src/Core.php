@@ -4,6 +4,7 @@ declare( strict_types=1 );
 
 namespace panastasiadist\Enqueueror;
 
+use Exception;
 use panastasiadist\Enqueueror\Base\Asset;
 use panastasiadist\Enqueueror\Base\Processor as Processor;
 use panastasiadist\Enqueueror\Flags\Source as SourceFlag;
@@ -211,7 +212,11 @@ class Core {
 				$dependencies_urls[] = $dependency;
 			} else if ( 0 === mb_strpos( $dependency, '/' ) ) {
 				// Check if the dependency is an asset and act accordingly.
-				$dependencies_assets[] = $this->explorer->get_asset_for_file_path( $dependency, $asset->get_type() );
+				try {
+					$dependencies_assets[] = $this->explorer->get_asset_for_file_path( $dependency, $asset->get_type() );
+				} catch ( Exception $e ) {
+					// Normally, an exception will be thrown only if the dependency does not resolve to a valid asset file path.
+				}
 			}
 		}
 
