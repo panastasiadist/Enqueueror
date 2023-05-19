@@ -104,7 +104,6 @@ class Core {
 	 * Coordinates the output of assets applicable to the current page.
 	 *
 	 * @param string $for_location Output assets designated only for the requested location.
-	 * @param string[] $with_sources Output assets with the provided sources.
 	 *
 	 * @return void
 	 */
