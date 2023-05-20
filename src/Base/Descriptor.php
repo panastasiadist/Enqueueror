@@ -3,6 +3,9 @@ declare( strict_types=1 );
 
 namespace panastasiadist\Enqueueror\Base;
 
+use WP_Post;
+use WP_Term;
+
 /**
  * Abstract class for classes providing descriptors.
  */
@@ -66,9 +69,9 @@ abstract class Descriptor {
 	 * The provided object is returned unmodified if it already corresponds to the default language of the website, or
 	 * if the object is not a \WP_Post or a \WP_Term instance, or if the website is not multilingual.
 	 *
-	 * @param \WP_Post|\WP_Term $queried_object
+	 * @param WP_Post|WP_Term $queried_object
 	 *
-	 * @return \WP_Post|\WP_Term
+	 * @return WP_Post|WP_Term
 	 */
 	protected static function get_default_language_object( $queried_object ) {
 		$default_language_code = self::get_default_language_code();
@@ -80,7 +83,7 @@ abstract class Descriptor {
 
 		$default_language_object = $queried_object;
 
-		if ( $queried_object instanceof \WP_Term ) {
+		if ( $queried_object instanceof WP_Term ) {
 			$default_id = apply_filters( 'wpml_object_id', $queried_object->term_id, $queried_object->taxonomy, true, $default_language_code );
 
 			if ( $default_id !== $queried_object->term_id ) {
@@ -88,7 +91,7 @@ abstract class Descriptor {
 				$default_language_object = get_term( $default_id, $queried_object->taxonomy );
 				self::switch_language( $current_language_code );
 			}
-		} else if ( $queried_object instanceof \WP_Post ) {
+		} else if ( $queried_object instanceof WP_Post ) {
 			$default_id = apply_filters( 'wpml_object_id', $queried_object->ID, $queried_object->post_type, true, $default_language_code );
 
 			if ( $default_id !== $queried_object->ID ) {

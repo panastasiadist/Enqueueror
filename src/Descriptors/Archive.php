@@ -4,6 +4,7 @@ namespace panastasiadist\Enqueueror\Descriptors;
 
 use panastasiadist\Enqueueror\Base\Description;
 use panastasiadist\Enqueueror\Base\Descriptor;
+use WP_Post_Type;
 
 class Archive extends Descriptor {
 	/**
@@ -25,7 +26,7 @@ class Archive extends Descriptor {
 
 		if ( is_date() ) {
 			$descriptors[] = new Description( 'archive-date' );
-		} else if ( $queried_object instanceof \WP_Post_Type ) {
+		} else if ( $queried_object instanceof WP_Post_Type ) {
 			$descriptors[] = new Description( 'archive-type-' . $queried_object->name );
 		}
 

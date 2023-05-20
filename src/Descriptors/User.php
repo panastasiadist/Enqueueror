@@ -4,6 +4,7 @@ namespace panastasiadist\Enqueueror\Descriptors;
 
 use panastasiadist\Enqueueror\Base\Description;
 use panastasiadist\Enqueueror\Base\Descriptor;
+use WP_User;
 
 class User extends Descriptor {
 	/**
@@ -15,7 +16,7 @@ class User extends Descriptor {
 	public static function get(): array {
 		$queried_object = get_queried_object();
 
-		if ( ! $queried_object instanceof \WP_User ) {
+		if ( ! $queried_object instanceof WP_User ) {
 			return array();
 		}
 

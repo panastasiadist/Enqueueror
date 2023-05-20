@@ -4,6 +4,7 @@ namespace panastasiadist\Enqueueror\Descriptors;
 
 use panastasiadist\Enqueueror\Base\Description;
 use panastasiadist\Enqueueror\Base\Descriptor;
+use WP_Term;
 
 class Term extends Descriptor {
 	/**
@@ -15,7 +16,7 @@ class Term extends Descriptor {
 	public static function get(): array {
 		$queried_object = get_queried_object();
 
-		if ( ! $queried_object instanceof \WP_Term ) {
+		if ( ! $queried_object instanceof WP_Term ) {
 			return array();
 		}
 
