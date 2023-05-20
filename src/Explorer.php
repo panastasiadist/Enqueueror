@@ -19,30 +19,23 @@ use panastasiadist\Enqueueror\Flags\Location as LocationFlag;
 
 class Explorer {
 	/**
-	 * Array of Descriptors used by this class to discover Assets applicable to the request.
-	 */
-	const DESCRIPTORS = array(
-		Archive::class,
-		Generic::class,
-		NotFound::class,
-		Post::class,
-		Search::class,
-		Term::class,
-		User::class,
-	);
-
-	/**
-	 * @var array Associative array: string -> string. Asset type to absolute filesystem directory path.
+	 * Asset type to absolute filesystem directory path.
+	 *
+	 * @var array<string, string>
 	 */
 	private $asset_type_to_directory_path = array();
 
 	/**
-	 * @var array Associative array: string -> string[]. Asset type to file extensions.
+	 * Asset type to file extensions.
+	 *
+	 * @var array<string, string[]>
 	 */
 	private $asset_type_to_extensions = array();
 
 	/**
-	 * @var array Associative array: string -> string. Asset extension to asset type.
+	 * Asset extension to asset type.
+	 *
+	 * @var array<string, string>
 	 */
 	private $extension_to_asset_type = array();
 
@@ -238,9 +231,20 @@ class Explorer {
 	 * @throws Exception If unable to search for assets.
 	 */
 	public function get_assets( string $asset_type ): array {
-		$descriptions = array_reduce( self::DESCRIPTORS, function ( array $acc, string $descriptor ) {
-			return array_merge( $acc, $descriptor::get() );
-		}, array() );
+		// An array of arrays that contain Description instances returned by each Descriptor.
+		// Each array within the main one contains Description instances returned by a Descriptor.
+		$descriptions = array(
+			Archive::get(),
+			Generic::get(),
+			NotFound::get(),
+			Post::get(),
+			Search::get(),
+			Term::get(),
+			User::get(),
+		);
+
+		// Flatten the array to get an 1-dimension array of all Description instances combined.
+		$descriptions = array_merge( ...$descriptions );
 
 		return $this->get_assets_by_descriptions( $descriptions, $asset_type );
 	}
