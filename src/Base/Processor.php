@@ -7,24 +7,20 @@ namespace panastasiadist\Enqueueror\Base;
  * An asset processor supports specific asset types and file extensions.
  * It reads & process a supported asset's file, returning an absolute path to the (processed) file.
  */
-class Processor {
+abstract class Processor {
 	/**
-	 * Override to return an array of asset file extensions supported by the processor.
+	 * Implement to return an array of asset file extensions supported by the processor.
 	 *
 	 * @return string[] Array of extensions supported by the processor.
 	 */
-	public static function get_supported_extensions(): array {
-		return array();
-	}
+	public abstract static function get_supported_extensions(): array;
 
 	/**
-	 * Override to return the asset type supported by the processor.
+	 * Implement to return the asset type supported by the processor.
 	 *
 	 * @return string The asset type supported by the processor.
 	 */
-	public static function get_supported_asset_type(): string {
-		return '';
-	}
+	public abstract static function get_supported_asset_type(): string;
 
 	/**
 	 * Returns the absolute filesystem path to an asset's file.
