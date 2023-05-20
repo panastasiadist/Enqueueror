@@ -56,22 +56,6 @@ class Explorer {
 	}
 
 	/**
-	 * Returns the file extensions supported for asset files of the provided asset type.
-	 *
-	 * @param string $asset_type An asset type to return its supported file extensions.
-	 *
-	 * @return string[] The array of supported file extensions.
-	 * @throws Exception If supported file extensions haven't been configured for the provided asset type.
-	 */
-	private function get_extensions_for_asset_type( string $asset_type ): array {
-		if ( isset( $this->asset_type_to_extensions[ $asset_type ] ) ) {
-			return $this->asset_type_to_extensions[ $asset_type ];
-		}
-
-		throw new Exception( "No extensions registered for '$asset_type' asset type" );
-	}
-
-	/**
 	 * Returns an Asset instance representing the provided file.
 	 *
 	 * @param array $file An associative array containing information about a file in the filesystem.
@@ -152,14 +136,14 @@ class Explorer {
 	 * @param string $asset_type A string representing the type of assets to return given the Description instances.
 	 *
 	 * @return Asset[] An array of Asset instances representing all asset files found.
-	 * @throws Exception If the provided asset type is not configured.
+	 * @throws Exception If unable to create Asset instances from the provided Description instances.
 	 */
 	private function get_assets_by_descriptions( array $descriptions, string $asset_type ): array {
 		// Get the extensions supported for the provided asset type prepending them with a dot character as required in
 		// the next stages when constructing the required regular expressions.
 		$extensions = array_map( function ( $extension ) {
 			return '.' . $extension;
-		}, $this->get_extensions_for_asset_type( $asset_type ) );
+		}, $this->asset_type_to_extensions[ $asset_type ] );
 
 		// The dot character has special meaning when used in the context of a regex.
 		// Extensions are used as part of the regex, so their dot character should be escaped.
