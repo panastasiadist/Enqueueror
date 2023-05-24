@@ -3,13 +3,11 @@
 use panastasiadist\Enqueueror\Flags\Source;
 use panastasiadist\Enqueueror\Flags\Location;
 
-class TestFlags extends WP_UnitTestCase
-{
+class TestFlags extends WP_UnitTestCase {
 	/**
 	 * Tests the functionality of Location flag class.
 	 */
-	public function test_location_flag()
-	{
+	public function test_location_flag() {
 		$this->assertEquals( 'location', Location::get_name(), "The value 'location' is returned as the name of the flag." );
 		$this->assertEquals( 'head', Location::get_detected_value( array( 'head' ) ), "The 'head' value is detected and supported by the flag." );
 		$this->assertEquals( 'footer', Location::get_detected_value( array( 'footer' ) ), "The 'footer' value is detected and supported by the flag." );
@@ -23,8 +21,7 @@ class TestFlags extends WP_UnitTestCase
 	/**
 	 * Tests the functionality of Source flag class.
 	 */
-	public function test_source_flag()
-	{
+	public function test_source_flag() {
 		$this->assertEquals( 'source', Source::get_name(), "The value 'source' is returned as the name of the flag." );
 		$this->assertEquals( 'internal', Source::get_detected_value( array( 'internal' ) ), "The 'internal' value is detected and supported by the flag." );
 		$this->assertEquals( 'external', Source::get_detected_value( array( 'external' ) ), "The 'external' value is detected and supported by the flag." );

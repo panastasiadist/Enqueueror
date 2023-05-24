@@ -2,13 +2,11 @@
 
 use panastasiadist\Enqueueror\Base\Description;
 
-class TestDescription extends WP_UnitTestCase
-{
+class TestDescription extends WP_UnitTestCase {
 	/**
 	 * Tests the functionality of the Descriptor class.
 	 */
-	public function test()
-	{
+	public function test() {
 		$pattern = 'a_regex_pattern';
 
 		$instance = new Description( $pattern );
@@ -23,15 +21,14 @@ class TestDescription extends WP_UnitTestCase
 		$instance = new Description( $pattern, 'global', 'el' );
 		$this->assert_values( $instance, $pattern, 'global', 'el', "The 'global' and 'el' values are set for the context and language code arguments, respectively." );
 
-		$this->expectException(InvalidArgumentException::class);
+		$this->expectException( InvalidArgumentException::class );
 		new Description( $pattern, 'invalid_context', 'all' );
 
-		$this->expectException(InvalidArgumentException::class);
+		$this->expectException( InvalidArgumentException::class );
 		new Description( $pattern, 'global', '' );
 	}
 
-	private function assert_values( Description $instance, string $name, string $context, string $language_code, string $message = '' )
-	{
+	private function assert_values( Description $instance, string $name, string $context, string $language_code, string $message = '' ) {
 		$this->assertEquals( $name, $instance->get_pattern(), $message );
 		$this->assertEquals( $context, $instance->get_context(), $message );
 		$this->assertEquals( $language_code, $instance->get_language_code(), $message );

@@ -11,8 +11,7 @@ use panastasiadist\Enqueueror\Descriptors\User;
 
 require_once( __DIR__ . '/wpml-boilerplate.php' );
 
-class TestDescriptors extends WP_UnitTestCase
-{
+class TestDescriptors extends WP_UnitTestCase {
 	use WPML_Boilerplate;
 
 	private $wpml_default_language_post_id = null;
@@ -29,8 +28,7 @@ class TestDescriptors extends WP_UnitTestCase
 	 *
 	 * @return void
 	 */
-	private function run_tests( array $language_code_to_descriptions_expected, string $descriptor )
-	{
+	private function run_tests( array $language_code_to_descriptions_expected, string $descriptor ) {
 		foreach ( $language_code_to_descriptions_expected as $language_code => $descriptions_expected ) {
 			if ( 'no_multilingual' !== $language_code ) {
 				$this->wpml_current_language = $language_code;
@@ -63,8 +61,7 @@ class TestDescriptors extends WP_UnitTestCase
 	 *
 	 * @return int|null
 	 */
-	public function filter_wpml_object_id( int $element_id, string $element_type, bool $return_original_if_missing = false, $language_code = null )
-	{
+	public function filter_wpml_object_id( int $element_id, string $element_type, bool $return_original_if_missing = false, $language_code = null ) {
 		if ( null == $language_code ) {
 			return $element_id;
 		}
@@ -91,9 +88,8 @@ class TestDescriptors extends WP_UnitTestCase
 	 *
 	 * @return void
 	 */
-	public static function setUpBeforeClass(): void
-	{
-		register_post_type('product', array( 'has_archive' => true ));
+	public static function setUpBeforeClass(): void {
+		register_post_type( 'product', array( 'has_archive' => true ) );
 	}
 
 	/**
@@ -101,8 +97,7 @@ class TestDescriptors extends WP_UnitTestCase
 	 *
 	 * @return void
 	 */
-	public function setUp(): void
-	{
+	public function setUp(): void {
 		$this->wpml_default_language = 'en';
 		$this->wpml_current_language = 'en';
 
@@ -116,8 +111,7 @@ class TestDescriptors extends WP_UnitTestCase
 	 *
 	 * @return void
 	 */
-	public function tearDown(): void
-	{
+	public function tearDown(): void {
 		$this->wpml_default_language = null;
 		$this->wpml_current_language = null;
 
@@ -131,14 +125,13 @@ class TestDescriptors extends WP_UnitTestCase
 	 *
 	 * @return void
 	 */
-	public function test_descriptor_archive_post_type()
-	{
+	public function test_descriptor_archive_post_type() {
 		// Navigate to a non-archive url to test that no Description instances are returned.
 
 		$language_code_to_descriptions_expected = array(
 			'no_multilingual' => array(),
-			'en' => array(),
-			'el' => array(),
+			'en'              => array(),
+			'el'              => array(),
 		);
 
 		$this->go_to( get_site_url() );
@@ -156,7 +149,7 @@ class TestDescriptors extends WP_UnitTestCase
 				'pattern=archive|context=current|language_code=all',
 				'pattern=archive-type-product|context=current|language_code=all',
 			),
-			'en' => array(
+			'en'              => array(
 				'pattern=archive|context=current|language_code=all',
 				'pattern=archive-type-product|context=current|language_code=all',
 				'pattern=archive-en|context=current|language_code=en',
@@ -173,15 +166,14 @@ class TestDescriptors extends WP_UnitTestCase
 	 *
 	 * @return void
 	 */
-	public function test_descriptor_generic()
-	{
+	public function test_descriptor_generic() {
 		// Don't go to a specific URL to test that all content-agnostic Description instances are returned.
 
 		$language_code_to_descriptions_expected = array(
 			'no_multilingual' => array(
 				'pattern=global|context=global|language_code=all',
 			),
-			'en' => array(
+			'en'              => array(
 				'pattern=global|context=global|language_code=all',
 				'pattern=global-en|context=global|language_code=en',
 			),
@@ -195,14 +187,13 @@ class TestDescriptors extends WP_UnitTestCase
 	 *
 	 * @return void
 	 */
-	public function test_descriptor_not_found()
-	{
+	public function test_descriptor_not_found() {
 		// Go to an existent url to test that no Description instances are returned.
 
 		$language_code_to_descriptions_expected = array(
 			'no_multilingual' => array(),
-			'en' => array(),
-			'el' => array(),
+			'en'              => array(),
+			'el'              => array(),
 		);
 
 		$this->go_to( '/' );
@@ -214,11 +205,11 @@ class TestDescriptors extends WP_UnitTestCase
 			'no_multilingual' => array(
 				'pattern=not-found|context=current|language_code=all',
 			),
-			'en' => array(
+			'en'              => array(
 				'pattern=not-found|context=current|language_code=all',
 				'pattern=not-found-en|context=current|language_code=en',
 			),
-			'el' => array(
+			'el'              => array(
 				'pattern=not-found|context=current|language_code=all',
 				'pattern=not-found-el|context=current|language_code=el',
 			),
@@ -233,14 +224,13 @@ class TestDescriptors extends WP_UnitTestCase
 	 *
 	 * @return void
 	 */
-	public function test_descriptor_post()
-	{
+	public function test_descriptor_post() {
 		// Navigate to a non-post url and test that no Description instances are returned.
 
 		$language_code_to_descriptions_expected = array(
 			'no_multilingual' => array(),
-			'en' => array(),
-			'el' => array(),
+			'en'              => array(),
+			'el'              => array(),
 		);
 
 		$this->go_to( '/' );
@@ -249,10 +239,10 @@ class TestDescriptors extends WP_UnitTestCase
 		// Create dummy posts to simulate language based post Descriptions.
 
 		$post_default = $this->factory()->post->create_and_get( array( 'post_type' => 'post' ) );
-		$post_alt = $this->factory()->post->create_and_get( array( 'post_type' => 'post' ) );
+		$post_alt     = $this->factory()->post->create_and_get( array( 'post_type' => 'post' ) );
 
 		$this->wpml_default_language_post_id = $post_default->ID;
-		$this->wpml_alt_language_post_id = $post_alt->ID;
+		$this->wpml_alt_language_post_id     = $post_alt->ID;
 
 		// Go to a post url in the default language and test that all relevant Description instances are returned.
 
@@ -265,7 +255,7 @@ class TestDescriptors extends WP_UnitTestCase
 				'pattern=type-' . $post_default->post_type . '-slug-' . $post_default->post_name . '|context=current|language_code=all',
 				'pattern=type-' . $post_default->post_type . '-id-' . $post_default->ID . '|context=current|language_code=all',
 			),
-			'en' => array(
+			'en'              => array(
 				'pattern=type|context=current|language_code=all',
 				'pattern=type-id-' . $post_default->ID . '|context=current|language_code=all',
 				'pattern=type-slug-' . $post_default->post_name . '|context=current|language_code=all',
@@ -281,7 +271,7 @@ class TestDescriptors extends WP_UnitTestCase
 			),
 		);
 
-		$this->go_to('/?p=' . $post_default->ID );
+		$this->go_to( '/?p=' . $post_default->ID );
 		$this->run_tests( $language_code_to_descriptions_expected, Post::class );
 
 		// Go to a post url in a non default language and test that all relevant Description instances are returned.
@@ -295,7 +285,7 @@ class TestDescriptors extends WP_UnitTestCase
 				'pattern=type-' . $post_alt->post_type . '-slug-' . $post_alt->post_name . '|context=current|language_code=all',
 				'pattern=type-' . $post_alt->post_type . '-id-' . $post_alt->ID . '|context=current|language_code=all',
 			),
-			'el' => array(
+			'el'              => array(
 				'pattern=type|context=current|language_code=all',
 				'pattern=type-id-' . $post_default->ID . '|context=current|language_code=all',
 				'pattern=type-slug-' . $post_default->post_name . '|context=current|language_code=all',
@@ -315,7 +305,7 @@ class TestDescriptors extends WP_UnitTestCase
 			),
 		);
 
-		$this->go_to('/?p=' . $post_alt->ID );
+		$this->go_to( '/?p=' . $post_alt->ID );
 		$this->run_tests( $language_code_to_descriptions_expected, Post::class );
 	}
 
@@ -324,14 +314,13 @@ class TestDescriptors extends WP_UnitTestCase
 	 *
 	 * @return void
 	 */
-	public function test_descriptor_term()
-	{
+	public function test_descriptor_term() {
 		// Go to a non-term url and test that no Description instances are returned.
 
 		$language_code_to_descriptions_expected = array(
 			'no_multilingual' => array(),
-			'en' => array(),
-			'el' => array(),
+			'en'              => array(),
+			'el'              => array(),
 		);
 
 		$this->go_to( '/' );
@@ -340,10 +329,10 @@ class TestDescriptors extends WP_UnitTestCase
 		// Create dummy terms to test language based term Descriptions
 
 		$term_default = $this->factory()->term->create_and_get( array( 'taxonomy' => 'category' ) );
-		$term_alt = $this->factory()->term->create_and_get( array( 'taxonomy' => 'category' ) );
+		$term_alt     = $this->factory()->term->create_and_get( array( 'taxonomy' => 'category' ) );
 
 		$this->wpml_default_language_term_id = $term_default->term_id;
-		$this->wpml_alt_language_term_id = $term_alt->term_id;
+		$this->wpml_alt_language_term_id     = $term_alt->term_id;
 
 		// Go to a term  url in the default language and test that all relevant Description instances are returned.
 
@@ -356,7 +345,7 @@ class TestDescriptors extends WP_UnitTestCase
 				'pattern=tax-' . $term_default->taxonomy . '-term-slug-' . $term_default->slug . '|context=current|language_code=all',
 				'pattern=tax-' . $term_default->taxonomy . '-term-id-' . $term_default->term_id . '|context=current|language_code=all',
 			),
-			'en' => array(
+			'en'              => array(
 				'pattern=term|context=current|language_code=all',
 				'pattern=term-id-' . $term_default->term_id . '|context=current|language_code=all',
 				'pattern=term-slug-' . $term_default->slug . '|context=current|language_code=all',
@@ -386,7 +375,7 @@ class TestDescriptors extends WP_UnitTestCase
 				'pattern=tax-' . $term_alt->taxonomy . '-term-slug-' . $term_alt->slug . '|context=current|language_code=all',
 				'pattern=tax-' . $term_alt->taxonomy . '-term-id-' . $term_alt->term_id . '|context=current|language_code=all',
 			),
-			'el' => array(
+			'el'              => array(
 				'pattern=term|context=current|language_code=all',
 				'pattern=term-id-' . $term_default->term_id . '|context=current|language_code=all',
 				'pattern=term-slug-' . $term_default->slug . '|context=current|language_code=all',
@@ -415,14 +404,13 @@ class TestDescriptors extends WP_UnitTestCase
 	 *
 	 * @return void
 	 */
-	public function test_descriptor_search()
-	{
+	public function test_descriptor_search() {
 		// Go to a non-search url and test that no Description instances are returned.
 
 		$language_code_to_descriptions_expected = array(
 			'no_multilingual' => array(),
-			'en' => array(),
-			'el' => array(),
+			'en'              => array(),
+			'el'              => array(),
 		);
 
 		$this->go_to( '/' );
@@ -434,7 +422,7 @@ class TestDescriptors extends WP_UnitTestCase
 			'no_multilingual' => array(
 				'pattern=search|context=current|language_code=all',
 			),
-			'en' => array(
+			'en'              => array(
 				'pattern=search|context=current|language_code=all',
 				'pattern=search-en|context=current|language_code=en',
 			),
@@ -449,8 +437,7 @@ class TestDescriptors extends WP_UnitTestCase
 	 *
 	 * @return void
 	 */
-	public function test_descriptor_user()
-	{
+	public function test_descriptor_user() {
 		// Go to a non-user url and test that no Description instances are returned.
 
 		$language_code_to_descriptions_expected = array(
@@ -469,7 +456,7 @@ class TestDescriptors extends WP_UnitTestCase
 			),
 		);
 
-		$this->go_to( get_author_posts_url(1) );
+		$this->go_to( get_author_posts_url( 1 ) );
 		$this->run_tests( $language_code_to_descriptions_expected, User::class );
 	}
 
@@ -478,14 +465,13 @@ class TestDescriptors extends WP_UnitTestCase
 	 *
 	 * @return void
 	 */
-	public function test_descriptor_archive_date()
-	{
+	public function test_descriptor_archive_date() {
 		// Go to a non date archive url and test that no Description instances are returned.
 
 		$language_code_to_descriptions_expected = array(
 			'no_multilingual' => array(),
-			'en' => array(),
-			'el' => array(),
+			'en'              => array(),
+			'el'              => array(),
 		);
 
 		$this->go_to( '/' );
@@ -498,13 +484,13 @@ class TestDescriptors extends WP_UnitTestCase
 				'pattern=archive|context=current|language_code=all',
 				'pattern=archive-date|context=current|language_code=all',
 			),
-			'en' => array(
+			'en'              => array(
 				'pattern=archive|context=current|language_code=all',
 				'pattern=archive-date|context=current|language_code=all',
 				'pattern=archive-en|context=current|language_code=en',
 				'pattern=archive-date-en|context=current|language_code=en',
 			),
-			'el' => array(
+			'el'              => array(
 				'pattern=archive|context=current|language_code=all',
 				'pattern=archive-date|context=current|language_code=all',
 				'pattern=archive-el|context=current|language_code=el',

@@ -2,13 +2,11 @@
 
 use panastasiadist\Enqueueror\Utilities\Htaccess;
 
-class TestHtaccess extends WP_UnitTestCase
-{
+class TestHtaccess extends WP_UnitTestCase {
 	/**
 	 * Tests the functionality of the Htaccess utility class
 	 */
-	public function test()
-	{
+	public function test() {
 		$paths = array(
 			'directory1/subdirectoryA',
 			'directory1/subdirectoryB',
@@ -26,7 +24,7 @@ class TestHtaccess extends WP_UnitTestCase
 		$rules[] = 'RewriteEngine On';
 
 		for ( $index = 0; $index < count( $paths ); $index += 1 ) {
-			$path = $paths[ $index ];
+			$path    = $paths[ $index ];
 			$rules[] = "RewriteCond %{REQUEST_FILENAME} ^$path/.+\.php$" . ( ( $index < count( $paths ) - 1 ) ? ' [OR]' : '' );
 		}
 

@@ -2,13 +2,11 @@
 
 use panastasiadist\Enqueueror\Base\Asset;
 
-class TestAsset extends WP_UnitTestCase
-{
+class TestAsset extends WP_UnitTestCase {
 	/**
 	 * Tests the functionality of the Asset class.
 	 */
-	public function test()
-	{
+	public function test() {
 		$absolute_css_filepath = tempnam( sys_get_temp_dir(), 'test' ) . '.css';
 		touch( $absolute_css_filepath );
 

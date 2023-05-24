@@ -1,7 +1,6 @@
 <?php
 
-trait WPML_Boilerplate
-{
+trait WPML_Boilerplate {
 	private $wpml_default_language = null;
 	private $wpml_current_language = null;
 
@@ -13,8 +12,7 @@ trait WPML_Boilerplate
 	 *
 	 * @return null
 	 */
-	public function filter_wpml_default_language( $arg )
-	{
+	public function filter_wpml_default_language( $arg ) {
 		return $this->wpml_default_language;
 	}
 
@@ -26,8 +24,7 @@ trait WPML_Boilerplate
 	 *
 	 * @return null
 	 */
-	public function filter_wpml_current_language( $arg )
-	{
+	public function filter_wpml_current_language( $arg ) {
 		return $this->wpml_current_language;
 	}
 }

@@ -3,22 +3,20 @@
 use panastasiadist\Enqueueror\Base\Asset;
 use panastasiadist\Enqueueror\Manager;
 
-class TestManager extends WP_UnitTestCase
-{
+class TestManager extends WP_UnitTestCase {
 	/**
 	 * @return array An associative array of configuration values according to which dummy Asset instances are created.
 	 */
-	private function get_asset_generation_configuration(): array
-	{
+	private function get_asset_generation_configuration(): array {
 		return array(
 			'asset_type_to_extensions' => array(
-				'scripts' => array( 'js', 'js.php' ),
+				'scripts'     => array( 'js', 'js.php' ),
 				'stylesheets' => array( 'css', 'css.php' ),
 			),
-			'contexts' => array( 'global', 'current' ),
-			'language_codes' => array( 'all', 'en', 'el' ),
-			'locations' => array( 'head', 'footer' ),
-			'sources' => array( 'external', 'internal' ),
+			'contexts'                 => array( 'global', 'current' ),
+			'language_codes'           => array( 'all', 'en', 'el' ),
+			'locations'                => array( 'head', 'footer' ),
+			'sources'                  => array( 'external', 'internal' ),
 		);
 	}
 
@@ -26,10 +24,10 @@ class TestManager extends WP_UnitTestCase
 	 * Generates and returns an array of dummy Asset instances according to the provided configuration.
 	 *
 	 * @param array $configuration An associative array of configuration values for the generation process.
+	 *
 	 * @return Asset[] An array of dummy Asset instances created according to the provided configuration.
 	 */
-	private function generate_assets( array $configuration ): array
-	{
+	private function generate_assets( array $configuration ): array {
 		extract( $configuration );
 
 		foreach ( $asset_type_to_extensions as $asset_type => $extensions ) {
@@ -64,8 +62,7 @@ class TestManager extends WP_UnitTestCase
 	 *
 	 * @return void
 	 */
-	public function test_asset_filtering()
-	{
+	public function test_asset_filtering() {
 		$assets = $this->generate_assets( $this->get_asset_generation_configuration() );
 
 		foreach ( Manager::get_assets_filtered( $assets, 'head' ) as $asset ) {
@@ -82,8 +79,7 @@ class TestManager extends WP_UnitTestCase
 	 *
 	 * @return void
 	 */
-	public function test_asset_sorting()
-	{
+	public function test_asset_sorting() {
 		$configuration = $this->get_asset_generation_configuration();
 
 		extract( $configuration );
@@ -100,7 +96,7 @@ class TestManager extends WP_UnitTestCase
 
 		foreach ( Manager::get_assets_sorted( $this->generate_assets( $configuration ) ) as $asset ) {
 			$matches = array();
-			if ( preg_match('/[a-z]*-[a-z]*-(.*)-(.*)-[a-z]*-[a-z]*/', $asset->get_absolute_filepath(), $matches ) ) {
+			if ( preg_match( '/[a-z]*-[a-z]*-(.*)-(.*)-[a-z]*-[a-z]*/', $asset->get_absolute_filepath(), $matches ) ) {
 				$asset_type_to_strings_found[ $asset->get_type() ][] = $matches[1] . '-' . $matches[2];
 			}
 		}
