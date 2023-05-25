@@ -18,17 +18,17 @@ features:
   - title: Efficient Code Organization
     details: Empower code organization and improve code modularity & reuse. 
     icon:
-        dark: /assets/svg/dark/folder.svg
-        light: /assets/svg/light/folder.svg
+        dark: /svg/dark/folder.svg
+        light: /svg/light/folder.svg
   - title: Content Specific Code
     details: Conditionally load CSS & JavaScript code, depending on the requested content.
     icon:
-        dark: /assets/svg/dark/git-branch.svg
-        light: /assets/svg/light/git-branch.svg
+        dark: /svg/dark/git-branch.svg
+        light: /svg/light/git-branch.svg
   - title: Dynamic Code Generation
     details: Use PHP as a preprocessor to dynamically generate CSS & JavaScript code.
     icon:
-        dark: /assets/svg/dark/code.svg
-        light: /assets/svg/light/code.svg
+        dark: /svg/dark/code.svg
+        light: /svg/light/code.svg
 ---
 
