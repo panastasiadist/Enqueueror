@@ -1,8 +1,13 @@
 # Directories
 vendor
+node_modules
 
 # PHPUnit
 .phpunit.result.cache
 
 # Log files
 *.log
+
+# VitePress
+docs/.vitepress/dist
+docs/.vitepress/cache
