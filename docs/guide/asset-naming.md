@@ -17,6 +17,7 @@ The following table contains a list of patterns regarding the **`[name]`** part 
 
 | Scenario                                                  | Name Pattern                        | Example                          |
 |-----------------------------------------------------------|-------------------------------------|----------------------------------|
+| Every kind of content                                     | **global**                          | global                           |
 | Content of arbitrary post type                            | **type**                            | type                             |
 | Specific content by ID                                    | **type-id-[id]**                    | type-id-1                        |
 | Specific content by slug                                  | **type-slug-[slug]**                | type-slug-home                   |
