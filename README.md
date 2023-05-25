@@ -18,7 +18,7 @@ Enqueueror takes into account CSS & JavaScript assets located under two special 
 ### 3. Consult the Guide
 
 ## Guide
-Visit [Enqueueror's Official Website]((https://panastasiadist.github.io/Enqueueror/)) to consult the Guide.
+Visit [Enqueueror's Website](https://panastasiadist.github.io/Enqueueror/) to consult the Guide.
 
 ## Acknowledgments
 Thanks to [Konstantinos Petsis](https://www.linkedin.com/in/konstantinos-petsis-3a3444228/) for testing the initial release of Enqueueror.
