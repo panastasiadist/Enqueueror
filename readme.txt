@@ -32,15 +32,15 @@ Code a CSS file named **tax-category-term-id-1.css** or **term-id-1.css** in the
 Code a CSS file named **tax-category-term-slug-category1.css** or **term-slug-category1.css** in the **stylesheets** directory.
 
 = Guide =
-You may read the guide at [GitHub](https://panastasiadist.github.io/Enqueueror/)
+You may read the guide at [GitHub](https://panastasiadist.github.io/Enqueueror/).
 
 == Other Notes ==
 
 = Usage =
 
-* Install Enqueueror
+* Install Enqueueror.
 * Create the **scripts** and **stylesheets** directories under the active theme's root directory.
-* Consult the guide at [GitHub](https://panastasiadist.github.io/Enqueueror/)
+* Consult the guide at [GitHub](https://panastasiadist.github.io/Enqueueror/).
 
 == Screenshots ==
 

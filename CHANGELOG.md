@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.3.0 - 
+## 1.3.0 - May 25, 2023
 
 ### Added
 - Support for loading CSS internally before the **`</body>`** closing tag.
