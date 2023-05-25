@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.3.0 - 
+
+### Added
+- Support for loading CSS internally before the **`</body>`** closing tag.
+- Support for loading CSS externally before the **`</body>`** closing tag.
+- Support for using internal CSS & JavaScript assets as dependencies both in **`<head>`** and **`<body>`**.
+- Support for using external CSS assets as dependencies within **`<body>`**.
+- Support for mixing internal and external assets within the asset dependency chain.
+
+### Changed
+- Better support for loading assets before the **`</body>`** closing tag.
+
 ## 1.2.0 - May 04, 2022
 
 ### Added

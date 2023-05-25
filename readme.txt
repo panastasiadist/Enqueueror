@@ -1,18 +1,18 @@
 === Enqueueror ===
 Contributors: panastasiadist
 Tags: theme, development, enqueue, javascript, css, stylesheet, script, wp_enqueue_script, wp_enqueue_style
-Requires at least: 4.6
-Tested up to: 5.9
-Stable tag: 1.2.0
+Requires at least: 5.0
+Tested up to: 6.2
+Stable tag: 1.3.0
 Requires PHP: 7.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Assisted WordPress Asset Preprocessing & Enqueueing
+ Supercharged WordPress CSS & JS Coding
 
 == Description ==
 
-Enqueueror is a plugin assisting WordPress developers in loading JavaScript and CSS code in a well organized and efficient way. The plugin enables WordPress developers to organize script and stylesheet assets in directories, using file naming conventions, enabling the automatic inclusion of the assets depending on the requested content. In addition, Enqueueror supports generating and outputting JavaScript and CSS code using PHP, using the PHP programming language as a preprocessor.
+Enqueueror enables WordPress developers to efficiently develop and manage their CSS & JavaScript code files, having them conditionally loaded, through the use of naming conventions and a bunch of convenient features which augment their code development workflow.
 
 = Quick Start Examples =
 
@@ -32,35 +32,43 @@ Code a CSS file named **tax-category-term-id-1.css** or **term-id-1.css** in the
 Code a CSS file named **tax-category-term-slug-category1.css** or **term-slug-category1.css** in the **stylesheets** directory.
 
 = Guide =
-You may read the guide at [GitHub](https://github.com/panastasiadist/Enqueueror)
+You may read the guide at [GitHub](https://panastasiadist.github.io/Enqueueror/)
 
 == Other Notes ==
 
 = Usage =
 
 * Install Enqueueror
-* Consult the guide at [GitHub](https://github.com/panastasiadist/Enqueueror)
+* Create the **scripts** and **stylesheets** directories under the active theme's root directory.
+* Consult the guide at [GitHub](https://panastasiadist.github.io/Enqueueror/)
 
 == Screenshots ==
 
-1. Enqueue assets globally as external files, regardless of the requested content.
-2. Enqueue assets as external files, based on the slug or ID of the page.
-3. Enqueue assets as external files, based on the slug or ID of the post.
-4. Enqueue assets as external files, based on the slug or ID of content of the "product" post type.
-5. Enqueue assets as external files, based on the slug or ID of the content, regardless of the latter's post type.
-6. Enqueue assets as external files, based on the slug or ID of a term belonging in the "category" taxonomy.
-7. Enqueue assets as external files, when an arbitrary term in the "category" taxonomy is requested.
-8. Enqueue assets as external files, based on the slug or ID of a specific term in the "product_cat" taxonomy.
+1. Load assets "globally" as external files, for every kind of content.
+2. Load assets as external files, based on a page's slug or ID.
+3. Load assets as external files, based on a post's slug or ID.
+4. Load assets as external files, based on the slug or ID of content provided by the "product" post type.
+5. Load assets as external files, based on the slug or ID of the content, irrespectively of the content's post type.
+6. Load assets as external files, based on the slug or ID of a term belonging in the "category" taxonomy.
+7. Load assets as external files, when an arbitrary term in the "category" taxonomy is requested.
+8. Load assets as external files, based on the slug or ID of a specific term in the "product_cat" taxonomy.
 9. Organize assets in directories by post type and taxonomy.
-10. Enqueue assets as external files, when the Greek (WPML based) translation of an arbitrary page is requested.
+10. Load assets as external files, when the Greek (WPML based) translation of an arbitrary page is requested.
 11. Dynamically generate CSS and JavaScript code to be enqueued as external files, for every requested page, using PHP as a preprocessor.
-12. Enqueue JavaScript assets as external files, specifying that their script tags should be outputted in the body HTML section, for every requested page.
-13. Outputting JavaScript code contained in the .js file as raw code (internally) in the body HTML section, for every requested page.
-14. Outputting code contained in the .js and .css files as raw code (internally) in the head HTML section, for every requested page.
-15. Dynamically generate CSS & JavaScript code to be outputted as raw code (internally) in the head HTML section, for every requested page.
+12. Load JavaScript assets as external files before the closing </body> tag, for every requested page.
+13. Output JavaScript code contained in the .js file internally before the closing </body> tag, for every requested page.
+14. Output code contained in the .js and .css files internally within the <head> HTML section, for every requested page.
+15. Dynamically generate CSS & JavaScript code to be loaded internally within the <head> HTML section, for every requested page.
 16. Mix of scenarios.
 
 == Changelog ==
+= 1.3.0 =
+* Added: Support for loading CSS internally before the </body> closing tag.
+* Added: Support for loading CSS externally before the </body> closing tag.
+* Added: Support for using internal CSS & JavaScript assets as dependencies both in <head> and <body>.
+* Added: Support for using external CSS assets as dependencies within <body>.
+* Added: Support for mixing internal and external assets within the asset dependency chain.
+* Changed: Better support for loading assets before the </body> closing tag.
 = 1.2.0 =
 * Added: Local assets and external script and stylesheets may be used as dependencies.
 * Added: Direct access to PHP preprocessed assets is prevented using .htaccess rules.
