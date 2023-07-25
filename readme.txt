@@ -3,7 +3,7 @@ Contributors: panastasiadist
 Tags: theme, development, enqueue, javascript, css, stylesheet, script, wp_enqueue_script, wp_enqueue_style
 Requires at least: 5.0
 Tested up to: 6.2
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 Requires PHP: 7.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -62,6 +62,8 @@ You may read the guide at [GitHub](https://panastasiadist.github.io/Enqueueror/)
 16. Mix of scenarios.
 
 == Changelog ==
+= 1.3.1 =
+* Fixed: Non string language codes returned by WPML filters are now properly handled.
 = 1.3.0 =
 * Added: Support for loading CSS internally before the </body> closing tag.
 * Added: Support for loading CSS externally before the </body> closing tag.

@@ -5,7 +5,7 @@
  * 
  * Plugin Name:         Enqueueror
  * Description:         Supercharged WordPress CSS & JS Coding
- * Version:             1.3.0
+ * Version:             1.3.1
  * Author:              Panagiotis (Panos) Anastasiadis
  * Author URI:          https://anastasiadis.me
  * License:             GPLv2 or later

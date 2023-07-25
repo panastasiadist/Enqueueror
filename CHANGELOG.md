@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.1 - July 25, 2023
+
+### Fixed
+- Non string language codes returned by WPML filters are now properly handled.
+
 ## 1.3.0 - May 25, 2023
 
 ### Added
