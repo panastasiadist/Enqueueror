@@ -22,21 +22,27 @@ abstract class Descriptor {
 	}
 
 	/**
-	 * Returns the language code of the default language or null if the website is not multilingual.
+	 * Returns the default language code if WPML is active & configured. Otherwise, an empty string is returned.
+	 * In addition, an empty string is returned if the language code is not a string value.
 	 *
-	 * @return string|null
+	 * @return string
 	 */
-	protected static function get_default_language_code(): ?string {
-		return apply_filters( 'wpml_default_language', null );
+	protected static function get_default_language_code(): string {
+		$value = apply_filters( 'wpml_default_language', '' );
+
+		return is_string( $value ) ? $value : '';
 	}
 
 	/**
-	 * Returns the language code of the active language or null if the website is not multilingual.
+	 * Returns the current language code if WPML is active & configured. Otherwise, an empty string is returned.
+	 * In addition, an empty string is returned if the language code is not a string value.
 	 *
-	 * @return string|null
+	 * @return string
 	 */
-	protected static function get_current_language_code(): ?string {
-		return apply_filters( 'wpml_current_language', null );
+	protected static function get_current_language_code(): string {
+		$value = apply_filters( 'wpml_current_language', '' );
+
+		return is_string( $value ) ? $value : '';
 	}
 
 	/**
