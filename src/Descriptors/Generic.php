@@ -12,8 +12,8 @@ class Generic extends Descriptor {
 	 *
 	 * @return Description[] An array of Description instances.
 	 */
-	public static function get(): array {
-		return static::get_language_enriched_descriptors( array(
+	public function get(): array {
+		return $this->get_language_enriched_descriptors( array(
 			new Description( 'global', 'global' ),
 		) );
 	}

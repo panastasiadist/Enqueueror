@@ -6,6 +6,7 @@ namespace panastasiadist\Enqueueror;
 use Exception;
 use panastasiadist\Enqueueror\Base\Asset;
 use panastasiadist\Enqueueror\Base\Description;
+use panastasiadist\Enqueueror\Base\Descriptor;
 use panastasiadist\Enqueueror\Descriptors\Archive;
 use panastasiadist\Enqueueror\Descriptors\Generic;
 use panastasiadist\Enqueueror\Descriptors\NotFound;
@@ -38,6 +39,13 @@ class Explorer {
 	 * @var array<string, string>
 	 */
 	private $extension_to_asset_type = array();
+
+	/**
+	 * Array of Descriptor instances used by this instance.
+	 *
+	 * @var Descriptor[]
+	 */
+	private $descriptors = array();
 
 	/**
 	 * Returns the absolute filesystem path to a directory configured for asset files of the provided asset type.
@@ -169,8 +177,11 @@ class Explorer {
 	 * provided configuration.
 	 *
 	 * @param array $asset_type_to_config An associative configuration array
+	 * @param Descriptor[] $descriptors An array of Descriptor instances to use.
 	 */
-	public function __construct( array $asset_type_to_config ) {
+	public function __construct( array $asset_type_to_config, array $descriptors ) {
+		$this->descriptors = $descriptors;
+
 		foreach ( $asset_type_to_config as $asset_type => $config ) {
 			foreach ( $config as $key => $value ) {
 				if ( 'directory_path' == $key ) {
@@ -217,15 +228,9 @@ class Explorer {
 	public function get_assets( string $asset_type ): array {
 		// An array of arrays that contain Description instances returned by each Descriptor.
 		// Each array within the main one contains Description instances returned by a Descriptor.
-		$descriptions = array(
-			Archive::get(),
-			Generic::get(),
-			NotFound::get(),
-			Post::get(),
-			Search::get(),
-			Term::get(),
-			User::get(),
-		);
+		$descriptions = array_map( function ( Descriptor $descriptor ) {
+			return $descriptor->get();
+		}, $this->descriptors );
 
 		// Flatten the array to get an 1-dimension array of all Description instances combined.
 		$descriptions = array_merge( ...$descriptions );

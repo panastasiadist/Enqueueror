@@ -36,7 +36,7 @@ class TestDescriptors extends WP_UnitTestCase {
 				$this->wpml_current_language = null;
 			}
 
-			$descriptions = $descriptor::get();
+			$descriptions = ( new $descriptor )->get();
 
 			foreach ( $descriptions as $description ) {
 				$description_actual = 'pattern=' . $description->get_pattern() . '|' .

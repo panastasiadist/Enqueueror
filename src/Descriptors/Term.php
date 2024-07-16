@@ -13,16 +13,16 @@ class Term extends Descriptor {
 	 *
 	 * @return Description[] An array of Description instances.
 	 */
-	public static function get(): array {
+	public function get(): array {
 		$queried_object = get_queried_object();
 
 		if ( ! $queried_object instanceof WP_Term ) {
 			return array();
 		}
 
-		$default_language_object = static::get_default_language_object( $queried_object );
+		$default_language_object = $this->get_default_language_object( $queried_object );
 
-		$descriptors = static::get_language_enriched_descriptors( array(
+		$descriptors = $this->get_language_enriched_descriptors( array(
 			new Description( 'term' ),
 			new Description( 'term-slug-' . $default_language_object->slug ),
 			new Description( 'term-id-' . $default_language_object->term_id ),
@@ -32,7 +32,7 @@ class Term extends Descriptor {
 		) );
 
 		if ( $queried_object->term_id !== $default_language_object->term_id ) {
-			$current_language_code = static::get_current_language_code();
+			$current_language_code = $this->get_current_language_code();
 
 			$descriptors = array_merge( $descriptors, array(
 				new Description( 'term-slug-' . $queried_object->slug, 'current', $current_language_code ),

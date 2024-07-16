@@ -17,7 +17,7 @@ abstract class Descriptor {
 	 *
 	 * @return void
 	 */
-	private static function switch_language( string $language_code ) {
+	private function switch_language( string $language_code ) {
 		do_action( 'wpml_switch_language', $language_code );
 	}
 
@@ -27,7 +27,7 @@ abstract class Descriptor {
 	 *
 	 * @return string
 	 */
-	protected static function get_default_language_code(): string {
+	protected function get_default_language_code(): string {
 		$value = apply_filters( 'wpml_default_language', '' );
 
 		return is_string( $value ) ? $value : '';
@@ -39,7 +39,7 @@ abstract class Descriptor {
 	 *
 	 * @return string
 	 */
-	protected static function get_current_language_code(): string {
+	protected function get_current_language_code(): string {
 		$value = apply_filters( 'wpml_current_language', '' );
 
 		return is_string( $value ) ? $value : '';
@@ -54,8 +54,8 @@ abstract class Descriptor {
 	 *
 	 * @return Description[] The enriched array of Description instances.
 	 */
-	protected static function get_language_enriched_descriptors( array $descriptions ): array {
-		$current_language_code = self::get_current_language_code();
+	protected function get_language_enriched_descriptors( array $descriptions ): array {
+		$current_language_code = $this->get_current_language_code();
 
 		if ( ! $current_language_code ) {
 			return $descriptions;
@@ -79,9 +79,9 @@ abstract class Descriptor {
 	 *
 	 * @return WP_Post|WP_Term
 	 */
-	protected static function get_default_language_object( $queried_object ) {
-		$default_language_code = self::get_default_language_code();
-		$current_language_code = self::get_current_language_code();
+	protected function get_default_language_object( $queried_object ) {
+		$default_language_code = $this->get_default_language_code();
+		$current_language_code = $this->get_current_language_code();
 
 		if ( ! ( $default_language_code && $current_language_code ) ) {
 			return $queried_object;
@@ -93,17 +93,17 @@ abstract class Descriptor {
 			$default_id = apply_filters( 'wpml_object_id', $queried_object->term_id, $queried_object->taxonomy, true, $default_language_code );
 
 			if ( $default_id !== $queried_object->term_id ) {
-				self::switch_language( $default_language_code );
+				$this->switch_language( $default_language_code );
 				$default_language_object = get_term( $default_id, $queried_object->taxonomy );
-				self::switch_language( $current_language_code );
+				$this->switch_language( $current_language_code );
 			}
 		} else if ( $queried_object instanceof WP_Post ) {
 			$default_id = apply_filters( 'wpml_object_id', $queried_object->ID, $queried_object->post_type, true, $default_language_code );
 
 			if ( $default_id !== $queried_object->ID ) {
-				self::switch_language( $default_language_code );
+				$this->switch_language( $default_language_code );
 				$default_language_object = get_post( $default_id, $queried_object->post_type );
-				self::switch_language( $current_language_code );
+				$this->switch_language( $current_language_code );
 			}
 		}
 
@@ -115,5 +115,5 @@ abstract class Descriptor {
 	 *
 	 * @return Description[] An array of Description instances.
 	 */
-	public abstract static function get(): array;
+	public abstract function get(): array;
 }

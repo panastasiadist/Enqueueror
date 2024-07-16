@@ -13,16 +13,16 @@ class Post extends Descriptor {
 	 *
 	 * @return Description[] An array of Description instances.
 	 */
-	public static function get(): array {
+	public function get(): array {
 		$queried_object = get_queried_object();
 
 		if ( ! $queried_object instanceof WP_Post ) {
 			return array();
 		}
 
-		$default_language_object = static::get_default_language_object( $queried_object );
+		$default_language_object = $this->get_default_language_object( $queried_object );
 
-		$descriptors = static::get_language_enriched_descriptors( array(
+		$descriptors = $this->get_language_enriched_descriptors( array(
 			new Description( 'type' ),
 			new Description( 'type-id-' . $default_language_object->ID ),
 			new Description( 'type-slug-' . $default_language_object->post_name ),
@@ -32,7 +32,7 @@ class Post extends Descriptor {
 		) );
 
 		if ( $queried_object->ID !== $default_language_object->ID ) {
-			$current_language_code = static::get_current_language_code();
+			$current_language_code = $this->get_current_language_code();
 
 			$descriptors = array_merge( $descriptors, array(
 				new Description( 'type-id-' . $queried_object->ID, 'current', $current_language_code ),

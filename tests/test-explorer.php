@@ -1,5 +1,12 @@
 <?php
 
+use panastasiadist\Enqueueror\Descriptors\Archive;
+use panastasiadist\Enqueueror\Descriptors\Generic;
+use panastasiadist\Enqueueror\Descriptors\NotFound;
+use panastasiadist\Enqueueror\Descriptors\Post;
+use panastasiadist\Enqueueror\Descriptors\Search;
+use panastasiadist\Enqueueror\Descriptors\Term;
+use panastasiadist\Enqueueror\Descriptors\User;
 use panastasiadist\Enqueueror\Explorer;
 
 require_once( __DIR__ . '/wpml-boilerplate.php' );
@@ -47,7 +54,17 @@ class TestExplorer extends WP_UnitTestCase {
 			),
 		);
 
-		return new Explorer( $config );
+		$descriptors = array(
+			new Archive(),
+			new Generic(),
+			new NotFound(),
+			new Post(),
+			new Search(),
+			new Term(),
+			new User(),
+		);
+
+		return new Explorer( $config, $descriptors );
 	}
 
 	/**

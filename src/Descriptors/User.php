@@ -13,7 +13,7 @@ class User extends Descriptor {
 	 *
 	 * @return Description[] An array of Description instances.
 	 */
-	public static function get(): array {
+	public function get(): array {
 		$queried_object = get_queried_object();
 
 		if ( ! $queried_object instanceof WP_User ) {

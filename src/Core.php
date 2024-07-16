@@ -7,6 +7,13 @@ namespace panastasiadist\Enqueueror;
 use Exception;
 use panastasiadist\Enqueueror\Base\Asset;
 use panastasiadist\Enqueueror\Base\Processor as Processor;
+use panastasiadist\Enqueueror\Descriptors\Archive;
+use panastasiadist\Enqueueror\Descriptors\Generic;
+use panastasiadist\Enqueueror\Descriptors\NotFound;
+use panastasiadist\Enqueueror\Descriptors\Post;
+use panastasiadist\Enqueueror\Descriptors\Search;
+use panastasiadist\Enqueueror\Descriptors\Term;
+use panastasiadist\Enqueueror\Descriptors\User;
 use panastasiadist\Enqueueror\Flags\Source as SourceFlag;
 use panastasiadist\Enqueueror\Flags\Location as LocationFlag;
 use panastasiadist\Enqueueror\Utilities\Htaccess as HtaccessUtility;
@@ -67,7 +74,17 @@ class Core {
 			$config['directory_path'] = $base_directory_path . DIRECTORY_SEPARATOR . $asset_type;
 		}
 
-		$this->explorer = new Explorer( $asset_type_to_config );
+		$descriptors = array(
+			new Archive(),
+			new Generic(),
+			new NotFound(),
+			new Post(),
+			new Search(),
+			new Term(),
+			new User(),
+		);
+
+		$this->explorer = new Explorer( $asset_type_to_config, $descriptors );
 
 		// Output assets in the <head> section of the HTML document.
 		add_action( 'wp_enqueue_scripts', array( $this, 'output_head_assets' ) );
