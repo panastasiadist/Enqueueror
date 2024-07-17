@@ -8,6 +8,10 @@ use panastasiadist\Enqueueror\Descriptors\Post;
 use panastasiadist\Enqueueror\Descriptors\Search;
 use panastasiadist\Enqueueror\Descriptors\Term;
 use panastasiadist\Enqueueror\Descriptors\User;
+use panastasiadist\Enqueueror\Interfaces\LanguageMediatorInterface;
+use panastasiadist\Enqueueror\Support\Language\FallbackMediator;
+use panastasiadist\Enqueueror\Support\Language\PolylangMediator;
+use panastasiadist\Enqueueror\Support\Language\WPMLMediator;
 
 require_once( __DIR__ . '/wpml-boilerplate.php' );
 
@@ -24,19 +28,31 @@ class TestDescriptors extends WP_UnitTestCase {
 	 * language codes.
 	 *
 	 * @param array $language_code_to_descriptions_expected An array of Description instances by language code.
-	 * @param string $descriptor Descriptor class to use.
+	 * @param string $descriptor_class Descriptor class to use.
 	 *
 	 * @return void
 	 */
-	private function run_tests( array $language_code_to_descriptions_expected, string $descriptor ) {
+	private function run_tests( array $language_code_to_descriptions_expected, string $descriptor_class ) {
 		foreach ( $language_code_to_descriptions_expected as $language_code => $descriptions_expected ) {
+			/**
+			 * @var LanguageMediatorInterface $language_mediator
+			 */
+			$language_mediator = null;
+
 			if ( 'no_multilingual' !== $language_code ) {
 				$this->wpml_current_language = $language_code;
+				$language_mediator           = new WPMLMediator();
 			} else {
 				$this->wpml_current_language = null;
+				$language_mediator           = new FallbackMediator();
 			}
 
-			$descriptions = ( new $descriptor )->get();
+			/**
+			 * @var Descriptor $descriptor
+			 */
+			$descriptor = new $descriptor_class( $language_mediator );
+
+			$descriptions = $descriptor->get();
 
 			foreach ( $descriptions as $description ) {
 				$description_actual = 'pattern=' . $description->get_pattern() . '|' .

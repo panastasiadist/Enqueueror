@@ -8,6 +8,7 @@ use panastasiadist\Enqueueror\Descriptors\Search;
 use panastasiadist\Enqueueror\Descriptors\Term;
 use panastasiadist\Enqueueror\Descriptors\User;
 use panastasiadist\Enqueueror\Explorer;
+use panastasiadist\Enqueueror\Support\Language\WPMLMediator;
 
 require_once( __DIR__ . '/wpml-boilerplate.php' );
 
@@ -55,13 +56,13 @@ class TestExplorer extends WP_UnitTestCase {
 		);
 
 		$descriptors = array(
-			new Archive(),
-			new Generic(),
-			new NotFound(),
-			new Post(),
-			new Search(),
-			new Term(),
-			new User(),
+			new Archive( new WPMLMediator() ),
+			new Generic( new WPMLMediator() ),
+			new NotFound( new WPMLMediator() ),
+			new Post( new WPMLMediator() ),
+			new Search( new WPMLMediator() ),
+			new Term( new WPMLMediator() ),
+			new User( new WPMLMediator() ),
 		);
 
 		return new Explorer( $config, $descriptors );

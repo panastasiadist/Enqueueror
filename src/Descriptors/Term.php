@@ -20,7 +20,7 @@ class Term extends Descriptor {
 			return array();
 		}
 
-		$default_language_object = $this->get_default_language_object( $queried_object );
+		$default_language_object = $this->language_mediator->get_default_language_object( $queried_object );
 
 		$descriptors = $this->get_language_enriched_descriptors( array(
 			new Description( 'term' ),
@@ -32,7 +32,7 @@ class Term extends Descriptor {
 		) );
 
 		if ( $queried_object->term_id !== $default_language_object->term_id ) {
-			$current_language_code = $this->get_current_language_code();
+			$current_language_code = $this->language_mediator->get_language_code( false );
 
 			$descriptors = array_merge( $descriptors, array(
 				new Description( 'term-slug-' . $queried_object->slug, 'current', $current_language_code ),

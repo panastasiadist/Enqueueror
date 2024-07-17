@@ -3,46 +3,21 @@ declare( strict_types=1 );
 
 namespace panastasiadist\Enqueueror\Base;
 
-use WP_Post;
-use WP_Term;
+use panastasiadist\Enqueueror\Interfaces\LanguageMediatorInterface;
 
 /**
  * Abstract class for classes providing descriptors.
  */
 abstract class Descriptor {
 	/**
-	 * Instructs the multilingual mechanism (if any) to switch to the language specified by the provided language code.
+	 * The language mediator used by the Descriptor for language/translation related operations.
 	 *
-	 * @param string $language_code Language code of the language to switch to.
-	 *
-	 * @return void
+	 * @var LanguageMediatorInterface
 	 */
-	private function switch_language( string $language_code ) {
-		do_action( 'wpml_switch_language', $language_code );
-	}
+	protected $language_mediator;
 
-	/**
-	 * Returns the default language code if WPML is active & configured. Otherwise, an empty string is returned.
-	 * In addition, an empty string is returned if the language code is not a string value.
-	 *
-	 * @return string
-	 */
-	protected function get_default_language_code(): string {
-		$value = apply_filters( 'wpml_default_language', '' );
-
-		return is_string( $value ) ? $value : '';
-	}
-
-	/**
-	 * Returns the current language code if WPML is active & configured. Otherwise, an empty string is returned.
-	 * In addition, an empty string is returned if the language code is not a string value.
-	 *
-	 * @return string
-	 */
-	protected function get_current_language_code(): string {
-		$value = apply_filters( 'wpml_current_language', '' );
-
-		return is_string( $value ) ? $value : '';
+	public function __construct( LanguageMediatorInterface $mediator ) {
+		$this->language_mediator = $mediator;
 	}
 
 	/**
@@ -55,7 +30,7 @@ abstract class Descriptor {
 	 * @return Description[] The enriched array of Description instances.
 	 */
 	protected function get_language_enriched_descriptors( array $descriptions ): array {
-		$current_language_code = $this->get_current_language_code();
+		$current_language_code = $this->language_mediator->get_language_code( false );
 
 		if ( ! $current_language_code ) {
 			return $descriptions;
@@ -68,46 +43,6 @@ abstract class Descriptor {
 				$current_language_code
 			);
 		}, $descriptions ) );
-	}
-
-	/**
-	 * Returns the instance corresponding to the default language version of the provided object.
-	 * The provided object is returned unmodified if it already corresponds to the default language of the website, or
-	 * if the object is not a \WP_Post or a \WP_Term instance, or if the website is not multilingual.
-	 *
-	 * @param WP_Post|WP_Term $queried_object
-	 *
-	 * @return WP_Post|WP_Term
-	 */
-	protected function get_default_language_object( $queried_object ) {
-		$default_language_code = $this->get_default_language_code();
-		$current_language_code = $this->get_current_language_code();
-
-		if ( ! ( $default_language_code && $current_language_code ) ) {
-			return $queried_object;
-		}
-
-		$default_language_object = $queried_object;
-
-		if ( $queried_object instanceof WP_Term ) {
-			$default_id = apply_filters( 'wpml_object_id', $queried_object->term_id, $queried_object->taxonomy, true, $default_language_code );
-
-			if ( $default_id !== $queried_object->term_id ) {
-				$this->switch_language( $default_language_code );
-				$default_language_object = get_term( $default_id, $queried_object->taxonomy );
-				$this->switch_language( $current_language_code );
-			}
-		} else if ( $queried_object instanceof WP_Post ) {
-			$default_id = apply_filters( 'wpml_object_id', $queried_object->ID, $queried_object->post_type, true, $default_language_code );
-
-			if ( $default_id !== $queried_object->ID ) {
-				$this->switch_language( $default_language_code );
-				$default_language_object = get_post( $default_id, $queried_object->post_type );
-				$this->switch_language( $current_language_code );
-			}
-		}
-
-		return $default_language_object;
 	}
 
 	/**

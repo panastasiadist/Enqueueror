@@ -16,6 +16,10 @@ use panastasiadist\Enqueueror\Descriptors\Term;
 use panastasiadist\Enqueueror\Descriptors\User;
 use panastasiadist\Enqueueror\Flags\Source as SourceFlag;
 use panastasiadist\Enqueueror\Flags\Location as LocationFlag;
+use panastasiadist\Enqueueror\Interfaces\LanguageMediatorInterface;
+use panastasiadist\Enqueueror\Support\Language\FallbackMediator;
+use panastasiadist\Enqueueror\Support\Language\PolylangMediator;
+use panastasiadist\Enqueueror\Support\Language\WPMLMediator;
 use panastasiadist\Enqueueror\Utilities\Htaccess as HtaccessUtility;
 use panastasiadist\Enqueueror\Processors\JS\Raw as RawJsProcessor;
 use panastasiadist\Enqueueror\Processors\JS\Php as PhpJsProcessor;
@@ -36,6 +40,17 @@ class Core {
 	);
 
 	/**
+	 * An array of language mediators.
+	 *
+	 * @var LanguageMediatorInterface[]
+	 */
+	const LANGUAGE_MEDIATORS = array(
+		WPMLMediator::class,
+		PolylangMediator::class,
+		FallbackMediator::class,
+	);
+
+	/**
 	 * A single Explorer instance. Initialized in the constructor.
 	 *
 	 * @var Explorer
@@ -50,41 +65,36 @@ class Core {
 	private $extension_to_processor = array();
 
 	/**
+	 * Asset types mapped to associated configuration arrays.
+	 *
+	 * @var array <string, array>
+	 */
+	private $asset_type_to_config = array();
+
+	/**
 	 * Constructor
 	 *
 	 * @param string $plugin_file_path Plugin's main file path.
 	 */
 	public function __construct( string $plugin_file_path ) {
-		$asset_type_to_config = array();
-
 		// Each processor generates code for a specific type of asset recognized by one or more file extensions.
-
 		foreach ( self::PROCESSORS as $class ) {
 			$type = $class::get_supported_asset_type();
 
 			foreach ( $class::get_supported_extensions() as $extension ) {
-				$asset_type_to_config[ $type ]['extensions'][] = $extension;
+				$this->asset_type_to_config[ $type ]['extensions'][] = $extension;
 				$this->extension_to_processor[ $extension ]    = $class;
 			}
 		}
 
 		$base_directory_path = get_stylesheet_directory();
 
-		foreach ( $asset_type_to_config as $asset_type => &$config ) {
+		foreach ( $this->asset_type_to_config as $asset_type => &$config ) {
 			$config['directory_path'] = $base_directory_path . DIRECTORY_SEPARATOR . $asset_type;
 		}
 
-		$descriptors = array(
-			new Archive(),
-			new Generic(),
-			new NotFound(),
-			new Post(),
-			new Search(),
-			new Term(),
-			new User(),
-		);
-
-		$this->explorer = new Explorer( $asset_type_to_config, $descriptors );
+		// Init the Explorer when the services it depends on have been already initialized.
+		add_action( 'init', array( $this, 'init_explorer' ) );
 
 		// Output assets in the <head> section of the HTML document.
 		add_action( 'wp_enqueue_scripts', array( $this, 'output_head_assets' ) );
@@ -100,6 +110,30 @@ class Core {
 
 		// Clean .htaccess stuff when the plugin is deactivated.
 		register_deactivation_hook( $plugin_file_path, array( HtaccessUtility::class, 'delete' ) );
+	}
+
+	public function init_explorer() {
+		$language_mediator = null;
+
+		foreach ( self::LANGUAGE_MEDIATORS as $mediator_class ) {
+			$language_mediator = new $mediator_class;
+
+			if ( $language_mediator->is_supported() ) {
+				break;
+			}
+		}
+
+		$descriptors = array(
+			new Archive( $language_mediator ),
+			new Generic( $language_mediator ),
+			new NotFound( $language_mediator ),
+			new Post( $language_mediator ),
+			new Search( $language_mediator ),
+			new Term( $language_mediator ),
+			new User( $language_mediator ),
+		);
+
+		$this->explorer = new Explorer( $this->asset_type_to_config, $descriptors );
 	}
 
 	/**
