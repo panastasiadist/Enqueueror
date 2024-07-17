@@ -30,6 +30,6 @@ class Archive extends Descriptor {
 			$descriptors[] = new Description( 'archive-type-' . $queried_object->name );
 		}
 
-		return $this->get_language_enriched_descriptors( $descriptors );
+		return $this->get_language_enriched_descriptions( $descriptors );
 	}
 }

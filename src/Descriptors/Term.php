@@ -22,7 +22,7 @@ class Term extends Descriptor {
 
 		$default_language_object = $this->language_mediator->get_default_language_object( $queried_object );
 
-		$descriptors = $this->get_language_enriched_descriptors( array(
+		$descriptors = $this->get_language_enriched_descriptions( array(
 			new Description( 'term' ),
 			new Description( 'term-slug-' . $default_language_object->slug ),
 			new Description( 'term-id-' . $default_language_object->term_id ),

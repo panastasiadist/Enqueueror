@@ -22,7 +22,7 @@ class Post extends Descriptor {
 
 		$default_language_object = $this->language_mediator->get_default_language_object( $queried_object );
 
-		$descriptors = $this->get_language_enriched_descriptors( array(
+		$descriptors = $this->get_language_enriched_descriptions( array(
 			new Description( 'type' ),
 			new Description( 'type-id-' . $default_language_object->ID ),
 			new Description( 'type-slug-' . $default_language_object->post_name ),

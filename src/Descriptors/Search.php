@@ -17,7 +17,7 @@ class Search extends Descriptor {
 			return array();
 		}
 
-		return $this->get_language_enriched_descriptors( array(
+		return $this->get_language_enriched_descriptions( array(
 			new Description( 'search' ),
 		) );
 	}

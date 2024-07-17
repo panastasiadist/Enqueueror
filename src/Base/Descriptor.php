@@ -29,7 +29,7 @@ abstract class Descriptor {
 	 *
 	 * @return Description[] The enriched array of Description instances.
 	 */
-	protected function get_language_enriched_descriptors( array $descriptions ): array {
+	protected function get_language_enriched_descriptions( array $descriptions ): array {
 		$current_language_code = $this->language_mediator->get_language_code( false );
 
 		if ( ! $current_language_code ) {
