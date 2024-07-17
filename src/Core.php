@@ -397,8 +397,8 @@ class Core {
 
 		if ( null === $source_basename_to_processed_file_paths ) {
 			// Search in the serving directory for processed files and group their paths by the basename of the source file.
-			foreach ( glob( "$serving_directory_path/*.$extension" ) as $processed_file_path ) {
-				$basename              = basename( $processed_file_path );
+			foreach ( glob( "$serving_directory_path/*.$extension" ) as $file_path ) {
+				$basename              = basename( $file_path );
 				$basename_parts        = explode( $hash_separator, $basename );
 				$name_part             = implode( $hash_separator, array_slice( $basename_parts, 0, - 1 ) );
 				$basename_without_hash = $name_part . $extension;
