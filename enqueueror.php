@@ -2,7 +2,7 @@
 
 /**
  * Enqueueror
- * 
+ *
  * Plugin Name:         Enqueueror
  * Description:         Supercharged WordPress CSS & JS Coding
  * Version:             1.3.1

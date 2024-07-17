@@ -83,7 +83,7 @@ class Core {
 
 			foreach ( $class::get_supported_extensions() as $extension ) {
 				$this->asset_type_to_config[ $type ]['extensions'][] = $extension;
-				$this->extension_to_processor[ $extension ]    = $class;
+				$this->extension_to_processor[ $extension ]          = $class;
 			}
 		}
 

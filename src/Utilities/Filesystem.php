@@ -36,7 +36,7 @@ class Filesystem {
 		// Process the directories found after having processed the files in the current folder in order to enforce
 		// ascending depth.
 		foreach ( $file_directory_paths as $path ) {
-			$sub_files = self::get_file_paths( $path );
+			$sub_files  = self::get_file_paths( $path );
 			$file_paths = array_merge( $file_paths, $sub_files );
 		}
 

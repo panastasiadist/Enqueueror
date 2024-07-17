@@ -35,7 +35,7 @@ class Flag {
 	 */
 	public static function get_detected_value( array $values, string $default = '' ): string {
 		$default = $default ?: static::$default_value;
-		$common = array_intersect( $values, static::$supported_values );
+		$common  = array_intersect( $values, static::$supported_values );
 
 		return ( ! empty( $common ) ) ? array_pop( $common ) : $default;
 	}
