@@ -74,6 +74,8 @@ class TestExplorer extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function setUp(): void {
+		$this->setUpWPML();
+
 		$base_directory = tempnam( sys_get_temp_dir(), 'test' );
 		unlink( $base_directory );
 
@@ -82,12 +84,6 @@ class TestExplorer extends WP_UnitTestCase {
 
 		wp_mkdir_p( $this->asset_type_to_directory_path['scripts'] );
 		wp_mkdir_p( $this->asset_type_to_directory_path['stylesheets'] );
-
-		$this->wpml_default_language = 'en';
-		$this->wpml_current_language = 'en';
-
-		add_filter( 'wpml_default_language', array( $this, 'filter_wpml_default_language' ) );
-		add_filter( 'wpml_current_language', array( $this, 'filter_wpml_current_language' ) );
 	}
 
 	/**
@@ -96,11 +92,7 @@ class TestExplorer extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function tearDown(): void {
-		$this->wpml_default_language = null;
-		$this->wpml_current_language = null;
-
-		remove_filter( 'wpml_default_language', array( $this, 'filter_wpml_default_language' ) );
-		remove_filter( 'wpml_current_language', array( $this, 'filter_wpml_current_language' ) );
+		$this->tearDownWPML();
 
 		foreach ( $this->asset_type_to_directory_path as $directory_path ) {
 			$this->remove_directory( $directory_path );

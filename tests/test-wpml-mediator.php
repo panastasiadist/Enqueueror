@@ -5,60 +5,12 @@ use panastasiadist\Enqueueror\Support\Language\WPMLMediator;
 class TestWPMLMediator extends WP_UnitTestCase {
 	use WPML_Boilerplate;
 
-	private $wpml_default_language_post_id = null;
-	private $wpml_default_language_term_id = null;
-	private $wpml_alt_language_post_id = null;
-	private $wpml_alt_language_term_id = null;
-
 	public function setUp(): void {
-		$this->wpml_default_language = 'en';
-		$this->wpml_current_language = 'en';
-
-		add_filter( 'wpml_default_language', array( $this, 'filter_wpml_default_language' ) );
-		add_filter( 'wpml_current_language', array( $this, 'filter_wpml_current_language' ) );
-		add_filter( 'wpml_object_id', array( $this, 'filter_wpml_object_id' ), 10, 4 );
+		$this->setUpWPML();
 	}
 
 	public function tearDown(): void {
-		$this->wpml_default_language = null;
-		$this->wpml_current_language = null;
-
-		remove_filter( 'wpml_default_language', array( $this, 'filter_wpml_default_language' ) );
-		remove_filter( 'wpml_current_language', array( $this, 'filter_wpml_current_language' ) );
-		remove_filter( 'wpml_object_id', array( $this, 'filter_wpml_object_id' ), 10, 4 );
-	}
-
-	/**
-	 * Mocks 'wpml_object_id' filter supported by WPML and used by the code.
-	 * Returns the ID corresponding to the language version specified for supplied content ID.
-	 *
-	 * @param int $element_id
-	 * @param string $element_type
-	 * @param bool $return_original_if_missing
-	 * @param $language_code
-	 *
-	 * @return int|null
-	 */
-	public function filter_wpml_object_id( int $element_id, string $element_type, bool $return_original_if_missing = false, $language_code = null ) {
-		if ( null == $language_code ) {
-			return $element_id;
-		}
-
-		if ( 'post' == $element_type ) {
-			if ( $language_code == $this->wpml_default_language && $element_id != $this->wpml_default_language_post_id ) {
-				return $this->wpml_default_language_post_id;
-			} else if ( $language_code != $this->wpml_default_language && $element_id == $this->wpml_default_language_post_id ) {
-				return $this->wpml_alt_language_post_id;
-			}
-		} else if ( 'category' == $element_type ) {
-			if ( $language_code == $this->wpml_default_language && $element_id != $this->wpml_default_language_term_id ) {
-				return $this->wpml_default_language_term_id;
-			} else if ( $language_code != $this->wpml_default_language && $element_id == $this->wpml_default_language_term_id ) {
-				return $this->wpml_alt_language_term_id;
-			}
-		}
-
-		return $element_id;
+		$this->tearDownWPML();
 	}
 
 	public function test_wpml_is_detected() {
