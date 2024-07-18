@@ -2,6 +2,7 @@
 
 use panastasiadist\Enqueueror\Flags\Source;
 use panastasiadist\Enqueueror\Flags\Location;
+use panastasiadist\Enqueueror\Flags\Loading;
 
 class TestFlags extends WP_UnitTestCase {
 	/**
@@ -30,5 +31,19 @@ class TestFlags extends WP_UnitTestCase {
 		$this->assertEquals( 'external', Source::get_detected_value( array( 'non_supported_value' ) ), "The default value is returned when trying to detect a value not supported by the flag." );
 		$this->assertEquals( "default_value", Source::get_detected_value( array( 'non_supported_value' ), 'default_value' ), "The provided default value is returned when trying to detect a value not supported by the flag." );
 		$this->assertEquals( "default_value", Source::get_detected_value( array(), 'default_value' ), "The provided default value is returned when an empty array of values is provided." );
+	}
+
+	/**
+	 * Tests the functionality of the Loading flag class.
+	 */
+	public function test_loading_flag() {
+		$this->assertEquals( 'loading', Loading::get_name(), "The value 'loading' is returned as the name of the flag." );
+		$this->assertEquals( 'async', Loading::get_detected_value( array( 'async' ) ), "The 'async' value is detected and supported by the flag." );
+		$this->assertEquals( 'defer', Loading::get_detected_value( array( 'defer' ) ), "The 'defer' value is detected and supported by the flag." );
+		$this->assertEquals( 'defer', Loading::get_detected_value( array( 'async', 'defer' ) ), "Only the last value is returned when trying to detect more than 1 values" );
+		$this->assertEquals( 'defer', Loading::get_detected_value( array( 'async', 'defer' ), 'default_value' ), "Only the last value is returned when trying to detect more than 1 values, ignoring the provided default value." );
+		$this->assertEquals( '', Loading::get_detected_value( array( 'non_supported_value' ) ), "The default value is returned when trying to detect a value not supported by the flag." );
+		$this->assertEquals( 'default_value', Loading::get_detected_value( array( 'non_supported_value' ), 'default_value' ), "The provided default value is returned when trying to detect a value not supported by the flag." );
+		$this->assertEquals( "default_value", Loading::get_detected_value( array(), 'default_value' ), "The provided default value is returned when an empty array of values is provided." );
 	}
 }
