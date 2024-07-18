@@ -17,6 +17,7 @@ use panastasiadist\Enqueueror\Descriptors\User;
 use panastasiadist\Enqueueror\Utilities\Filesystem;
 use panastasiadist\Enqueueror\Flags\Source as SourceFlag;
 use panastasiadist\Enqueueror\Flags\Location as LocationFlag;
+use panastasiadist\Enqueueror\Flags\Loading as LoadingFlag;
 
 class Explorer {
 	/**
@@ -107,6 +108,7 @@ class Explorer {
 		$flags = array(
 			SourceFlag::get_name()   => SourceFlag::get_detected_value( $flag_values ),
 			LocationFlag::get_name() => LocationFlag::get_detected_value( $flag_values ),
+			LoadingFlag::get_name() => LoadingFlag::get_detected_value( $flag_values ),
 		);
 
 		$language_code = 'all';

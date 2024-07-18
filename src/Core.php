@@ -16,6 +16,7 @@ use panastasiadist\Enqueueror\Descriptors\Term;
 use panastasiadist\Enqueueror\Descriptors\User;
 use panastasiadist\Enqueueror\Flags\Source as SourceFlag;
 use panastasiadist\Enqueueror\Flags\Location as LocationFlag;
+use panastasiadist\Enqueueror\Flags\Loading as LoadingFlag;
 use panastasiadist\Enqueueror\Interfaces\LanguageMediatorInterface;
 use panastasiadist\Enqueueror\Support\Language\FallbackMediator;
 use panastasiadist\Enqueueror\Support\Language\PolylangMediator;
@@ -218,6 +219,14 @@ class Core {
 
 				if ( 'scripts' === $asset->get_type() ) {
 					wp_enqueue_script( $handle, $file_url, $dependencies, filemtime( $file_path ) );
+
+					// WordPress supports loading async or defer scripts from version 6.3 and onwards.
+					$loading = $asset->get_flag( LoadingFlag::get_name() );
+
+					if ( LoadingFlag::VALUE_NONE !== $loading ) {
+						// The following code has no effect in WordPress installations older than 6.3.
+						wp_script_add_data( $handle, 'strategy', $loading );
+					}
 				} else {
 					// stylesheets
 					wp_enqueue_style( $handle, $file_url, $dependencies, filemtime( $file_path ) );
