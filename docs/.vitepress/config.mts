@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Enqueueror",
-  description: "Supercharged WordPress CSS & JS Coding",
+  description: "Supercharged CSS & JS Coding for WordPress",
   base: '/Enqueueror/',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
@@ -13,7 +13,6 @@ export default defineConfig({
       { text: 'Examples', link: '/examples' },
       { text: 'Changelog', link: 'https://github.com/panastasiadist/Enqueueror/blob/main/CHANGELOG.md' },
     ],
-
     sidebar: [
       {
         text: 'Guide',
@@ -22,25 +21,25 @@ export default defineConfig({
           { text: 'Getting Started', link: '/guide/getting-started' },
           { text: 'Core Concepts', link: '/guide/core-concepts' },
           { text: 'Asset Naming', link: '/guide/asset-naming' },
+          { text: 'Asset Flags', link: '/guide/asset-flags' },
           { text: 'Asset Preprocessing', link: '/guide/asset-preprocessing' },
           { text: 'Asset Header', link: '/guide/asset-header' },
           { text: 'Asset Dependencies', link: '/guide/asset-dependencies' },
+          { text: 'Asset Ordering', link: '/guide/asset-ordering' },
           { text: 'Asset Loading', link: '/guide/asset-loading' }
         ]
       }
     ],
-
     socialLinks: [
       { icon: 'github', link: 'https://github.com/panastasiadist/Enqueueror' }
     ],
-
     search: {
-      provider: 'local'
+      provider: 'local',
     },
-
     footer: {
       message: 'Released under the GPL v2+ License.',
-      copyright: 'Copyright © 2023-present <a href="https://anastasiadis.me" title="Panagiotis (Panos) Anastasiadis" target="_blank">Panagiotis Anastasiadis</a>'
+      copyright:
+          'Copyright © 2024-present <a href="https://anastasiadis.me" title="Panagiotis Anastasiadis" target="_blank">Panagiotis Anastasiadis</a>',
     },
-  },
+  }
 })

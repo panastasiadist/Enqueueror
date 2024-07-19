@@ -1,10 +1,12 @@
 # Getting Started
 
 ## Installation
-Enqueueror is available from the official [WordPress Plugin Repository](https://wordpress.org/plugins/enqueueror/) as a free plugin. You may search, install and activate it from within your WordPress installation or download, upload and activate it from the plugin repository.
+Enqueueror is available as a free plugin from the official [WordPress Plugin Repository](https://wordpress.org/plugins/enqueueror/). 
+
+You can search for, install, and activate it directly from your WordPress installation, or download it from the plugin repository, upload, and then activate it.
 
 ## Required Directories
-Enqueueror takes into account CSS & JavaScript assets located under two special directories in the active theme's directory. The directories should be created by the developer:
+Enqueueror processes CSS & JavaScript assets stored in two specific directories within the active theme's directory. These directories need to be created by the developer:
 
 | Directory Path                                              | Usage                      |
 |-------------------------------------------------------------|----------------------------|
@@ -13,13 +15,13 @@ Enqueueror takes into account CSS & JavaScript assets located under two special 
 
 ::: info
 * The aforementioned directory paths are relative to the WordPress installation directory.
-* The `<active_theme_directory>` part of the directory path maps to the name of the active theme's directory. Both parent and child themes are supported.
+* The **`<active_theme_directory>`** portion of the directory path corresponds to the name of the active theme's directory. Both parent and child themes are supported.
 :::
 
 ## Quick-Start Examples
 
 ::: info
-The following examples require that the `scripts` and `stylesheets` directories have been created.
+The examples provided below assume that the **`scripts`** and **`stylesheets`** directories have been created.
 :::
 
 #### Load a CSS file "globally", that is, irrespectively of the requested content
@@ -27,58 +29,58 @@ The following examples require that the `scripts` and `stylesheets` directories 
 > **`/wp-content/themes/<active_theme_directory>/stylesheets/global.css`**
 * Fill it with the following code:
 ```css
-/* This CSS rule will be applied everywhere in the client-facing part of the website */
+/* This CSS rule will be applied across all client-facing parts of the website. */
 body {
     background-color: blue
 }
 ```
-* Navigate to any page of your WordPress website and the background should be blue.
+* Navigate to any page on your WordPress website and the background should now be blue.
 
 ___
 
-#### Load a CSS file when a page with slug `home` is requested
+#### Load a CSS file when a page with the slug `home` is requested
 
-* Create a page setting **`home`** as its slug.
+* Create a page with **`home`** set as its slug.
 * Create an appropriately named CSS file:
 > **`/wp-content/themes/<active_theme_directory>/stylesheets/type-page-slug-home.css`**
 * Fill it with the following code:
 ```css
-/* This style will be applied only when viewing the page with slug "home" */
+/* This style will be applied when viewing the page with the slug "home". */
 body {
     letter-spacing: 2px;
 }
 ```
-* Navigate to the created page and its text should have increased space among the letters.
+* Navigate to the newly created page, and you should observe increased spacing between the letters in the text.
 
 ___
 
 ::: tip
-The CSS rules shown in the examples may not produce the desired result. It depends on your theme and any other CSS applied on your website.
+The CSS rules presented in the examples might not yield the desired outcome. The result depends on your theme and any other CSS included in your website.
 :::
 
 ___
 
-#### Load a JavaScript file only when a post is requested
-* Create a post if you don't already have one.
+#### Load a JavaScript file when a post is requested
+* Create a post.
 * Create an appropriately named JavaScript file:
 > **`/wp-content/themes/<active_theme_directory>/scripts/type-post.js`**
 * Fill it with the following code:
 ```js
 // This message should appear in the browser console
-console.log('I am loaded by Enqueueror for every post');
+console.log('I will be loaded by Enqueueror for every post');
 ```
-* Navigate to any post in your WordPress website and the message should appear in your browser's console.
+* Visit any post on your WordPress website, and the message should appear in your browser's console.
 
 ___
 
-#### Load a JavaScript file only when a specific post is requested
+#### Load a JavaScript file when a specific post is requested
 
-* Create a post if you don't already have one and write down its unique ID.
-* Create an appropriately named JavaScript file replacing **`<id>`** with the ID of the post:
+* Create a post and note its unique ID.
+* Create an appropriately named JavaScript file replacing **`<id>`** portion of the filename with the ID of the post:
 > **`/wp-content/themes/<active_theme_directory>/scripts/type-post-id-<id>.js`**
 * Fill it with the following code:
 ```js
 // This message should appear in the browser console
-console.log('I was loaded by Enqueueror for this post only');
+console.log('I have been loaded by Enqueueror for this post only');
 ```
-* Navigate to this post in your WordPress website and the message should appear in your browser's console.
+* Visit this post on your WordPress website, and the message should appear in your browser's console.

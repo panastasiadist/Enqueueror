@@ -1,25 +1,30 @@
 # Introduction
 
 ## Why Enqueueror?
-Enqueueror enables WordPress developers to efficiently develop and manage their CSS & JavaScript code files, having them conditionally loaded, through the use of naming conventions and a bunch of convenient features which augment their code development workflow.
+
+Enqueueror empowers WordPress developers to manage and develop their CSS & JavaScript files efficiently. It facilitates conditional CSS & JavaScript loading through the use of naming conventions and provides numerous features to enhance the code development workflow.
 
 ## A bit of history
-Enqueueror was conceived in 2016, initially known as (the non-published plugin) AssetLoader, as a way to organize CSS & JavaScript files in WordPress websites, having them conditionally loaded depending on the requested content, freeing the developer from the hassle of repeatedly writing WordPress hook-based PHP code. 
 
-Nowadays, Enqueueror is utilized in an increasing number of websites, greatly empowering the development experience, while pushing for website loading experience improvements due to its support for content-specific CSS & JavaScript code.
+Enqueueror was initially conceived in 2016 as (the non-published plugin) AssetLoader. It has always been used to organize CSS & JavaScript files in WordPress websites and allow for their conditional loading based on the requested content. This has eliminated the need for developers to repeatedly write WordPress hook-based PHP code.
+
+Today, Enqueueror is being utilized in a growing number of websites, significantly enhancing the development experience. It also promotes improvements in website loading experience due to its support for content-specific CSS & JavaScript code, as well as other performance-oriented features.
 
 ## How it works
-Enqueueror actively watches the directory of a (WordPress based) website's active theme for code files containing or producing CSS & JavaScript code which should be pushed to the browser depending on the requested content or any other conditions set by the developer. 
 
-The code files are stored in special directories under the theme's directory while named according to specific conventions that allow Enqueueror to know when and how each code file should be pushed to the browser. 
+Enqueueror monitors the directory of the active theme in a WordPress-based website for code files that contain or generate CSS & JavaScript code. These files need to be pushed to the browser based on the requested content or any other conditions set by the developer.
 
-For example, it is perfectly possible that an (appropriately named) JavaScript code file is being loaded only when the homepage is requested.
+The aforementioned code files are stored in specific directories within the theme's directory, and they are named according to certain conventions. These conventions allow Enqueueror to determine when and how each code file should be used by the browser.
+
+For instance, it is entirely feasible for a JavaScript code file, if appropriately named, to load only when the homepage is requested.
 
 ## Features
-* Conditionally load CSS & JavaScript files, depending on the requested content, setting the ground for an improved website experience.
-* Empower code organization and improve code modularity & reuse, by mixing and matching code chunks to meet the needs of the requested content.
-* Have code loaded internally or externally as required.
-* Use PHP as a preprocessor to generate CSS & JavaScript code depending on the circumstances.
+
+* Conditionally load CSS & JavaScript files based on the requested content, setting the stage for an enhanced website experience.
+* Enhance code organization and improve modularity and reuse of code by combining code chunks to meet the requirements of the requested content.
+* Load code internally or externally as needed.
+* Make use of the modern **async** and **defer** script tag attributes for an improved website loading experience.
+* Utilize PHP as a preprocessor to generate CSS & JavaScript code depending on the circumstances.
 
 ## Requirements
 * PHP 7.1 or newer

@@ -1,20 +1,22 @@
 # Asset Preprocessing
 
-Enqueueror inspires from SASS and LESS, enabling developers to use PHP as a way to generate CSS or JavaScript code to be served to the browser. The preprocessed versions of the assets are served from the **`/wp-content/uploads/enqueueror`** directory.
+Drawing inspiration from SASS and LESS, Enqueueror empowers developers to use PHP for generating CSS or JavaScript code to be served to the browser. The preprocessed versions of these assets are served from the **`/wp-content/uploads/enqueueror`** directory.
 
 ## Preprocessing CSS
 
-- Create asset files following the required naming conventions and the **`.css.php`** file extension.
-- Implement PHP code which outputs valid CSS code.
-- Optionally use **`style`** tags when not within the PHP execution context, to benefit from any CSS features supported by your IDE.
+- Create asset files adhering to the necessary naming conventions and use the **`.css.php`** file extension.
+- Write PHP code that generates valid CSS code.
+- If not within the PHP execution context, you may optionally use **`style`** tags to take advantage of any CSS features your IDE supports.
 
 #### Plain CSS code without utilizing PHP
+
 ```css
 /* global.css.php */
 .element { margin: 0 }
 ```
 
 #### Plain CSS code using `style` tags without utilizing PHP
+
 ```html
 <style>
     /* global.css.php */
@@ -23,6 +25,7 @@ Enqueueror inspires from SASS and LESS, enabling developers to use PHP as a way 
 ```
 
 #### Using PHP to generate valid CSS code
+
 ```html
 <style>
     /* global.css.php */  
@@ -36,17 +39,19 @@ Enqueueror inspires from SASS and LESS, enabling developers to use PHP as a way 
 
 ## Preprocessing JavaScript
 
-- Create asset files following the required naming conventions and the **`.js.php`** file extension.
-- Implement PHP code which outputs valid JavaScript code.
-- Optionally use **`script`** tags when not within the PHP execution context, to benefit from any CSS features supported by your IDE.
+- Create asset files adhering to the necessary naming conventions and use the **`.js.php`** file extension.
+- Write PHP code that generates valid JavaScript code.
+- If not within the PHP execution context, you may optionally use **`script`** tags to take advantage of any JavaScript features your IDE supports.
 
 #### Plain JavaScript code without utilizing PHP
+
 ```javascript
 /* global.js.php */
 console.log('Hello World');
 ```
 
 #### Plain JavaScript code using `script` tags without utilizing PHP
+
 ```html
 <script>
     /* global.js.php */
@@ -55,6 +60,7 @@ console.log('Hello World');
 ```
 
 #### Using PHP to generate valid JavaScript code
+
 ```html
 <script>
     /* global.js.php */
@@ -68,7 +74,9 @@ console.log('Hello World');
 
 ## Security & Performance
 
-PHP assets getting preprocessed are ordinary PHP files meant to be used by Enqueueror only. It is recommended that developers prevent their code from being executed due to direct file access, that is, outside of WordPress' context, in order to avoid security or performance issues. To do so, developers may begin their PHP based assets using the following line:
+PHP assets that are preprocessed are regular PHP files, intended solely for use by Enqueueror. 
+
+To prevent security or performance issues, it is advisable for developers to restrict direct file access execution of their code, that is, execution outside of WordPress' context. Developers can do so by starting their PHP-based assets with the following line:
 
 ```php
 <?php
@@ -77,6 +85,6 @@ defined( 'ABSPATH' ) || exit;
 // Next lines containing PHP code that generate JavaScript or CSS code
 ```
 
-As a measure of last resort, Enqueueror utilizes **.htaccess** rules to prevent direct access to any PHP based assets living under the active theme. However, this measure requires web servers that support **.htaccess** rules such as **Apache** or **Litespeed**. 
+As a final line of defense, Enqueueror employs **.htaccess** rules to prevent direct access to any PHP-based assets located under the active theme. However, this approach relies on web servers that support **.htaccess** rules, such as **Apache**.
 
-In addition, Enqueueror will automatically update the **.htaccess** file when switching to a new theme, leaving any previously active theme unprotected. Consequently, developers are encouraged to implement the use the aforementioned code line, even if **.htaccess** rules are taken into account by the web server.
+Furthermore, when a new theme is activated, Enqueueror will automatically update the **.htaccess** file, leaving any previously active theme exposed. Therefore, developers are strongly recommended to incorporate the aforementioned code line in their practice, even if the web server respects **.htaccess** rules.

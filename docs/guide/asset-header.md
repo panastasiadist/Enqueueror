@@ -1,6 +1,6 @@
 # Asset Header
 
-An asset may contain an optional header, that is, a block comment specifying details about the asset in **`key:value`** pairs that are taken into account by Enqueueror to support additional functionality on a per-asset basis. The header should appear first, before any other actual code. The format of the header is as follows:
+An asset may include an optional header, i.e., a block comment providing details about the asset in **`key:value`** pairs. Enqueueror considers these pairs to provide additional, asset-specific functionalities. The header should be positioned at the beginning, before any actual code. The format of the header is as follows:
 
 ```
 /*
@@ -9,4 +9,4 @@ An asset may contain an optional header, that is, a block comment specifying det
  */
 ```
 
-Currently **`Requires`** key is supported, which is used to inform Enqueueror about the dependencies required by the asset.
+Currently only the **`Requires`** key is supported, used to inform Enqueueror about the dependencies required by the asset.

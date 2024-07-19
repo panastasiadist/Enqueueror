@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+
+
+:root {
+    --vp-font-size-body: '14px';
+    --vp-font-family-head: 'EB Garamond', serif;
+    --vp-font-family-base: 'Poppins', sans-serif;
+    --vp-font-family-mono: 'JetBrains Mono', monospace;
+    --vp-code-font-size: 14px;
+    --vp-home-hero-name-color: rgba(47, 72, 253, 1);
+    --vp-c-brand-1: rgba(47, 72, 253, 1);
+    --vp-button-brand-bg: rgba(47, 72, 253, 1);
+    --vp-button-brand-hover-bg: rgba(47, 72, 253, 0.8);
+    /* rgba(95, 114, 255, 1); */
+}
+
+body {
+    font-size: 14px;
+}
+
+.vp-doc h1,
+.vp-doc h2,
+.vp-doc h3 {
+    font-family: var(--vp-font-family-head), sans-serif;
+}
+
+@media (min-width: 768px) {
+    .vp-doc h1 {
+        font-size: 34px;
+    }
+
+    .vp-doc h2 {
+        font-size: 28px;
+    }
+
+    .vp-doc h3 {
+        font-size: 22px;
+    }
+
+    .vp-doc h4 {
+        font-size: 16px;
+    }
+}
+
+/*.VPFeatures .VPImage {*/
+/*    min-height: 48px;*/
+/*}*/

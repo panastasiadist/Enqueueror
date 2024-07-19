@@ -1,29 +1,33 @@
 # Asset Dependencies
 
-An asset (the dependent) may specify other assets it depends on by using the **`Requires`** header key. The value of the key should contain one or more comma separated handles, relative paths, or URLs to other assets (the dependencies). WordPress will enqueue the dependencies before the dependent asset, provided that no other code intervenes in this process (ex. optimization plugins).
+An asset (the dependent) can specify its dependencies using the **`Requires`** header key. 
+
+The value of this key should consist of one or more comma-separated handles, relative paths, or URLs linking to other assets (the dependencies). 
+
+Provided there's no additional code interfering with this process (for instance, optimization plugins), WordPress will enqueue the dependencies prior to the dependent asset.
 
 ## Handle based dependencies
 
-CSS or JavaScript files being loaded using WordPress' built-in mechanisms are given a name by WordPress. This name is called a **handle**, and it is unique to each resource being loaded using WordPress' facilities. A handle may be provided by WordPress itself (ex. jquery) due to a resource being bundled by the core WordPress installation or may be provided by third-party code such as plugins.
+In WordPress, CSS or JavaScript files loaded using its built-in mechanisms are assigned a name, known as a **handle**. Each resource loaded via WordPress has a unique handle. A handle could either be provided by WordPress itself (for instance, jquery) if the resource comes bundled with the core WordPress installation, or it might be provided by third-party code, such as plugins.
 
-By exploiting WordPress mechanisms, Enqueueror allows developers to specify assets/resources as dependencies by providing a comma-separated list of their handles as the value of the **`Requires`** header key.
+Benefiting from WordPress' mechanisms, Enqueueror provides developers the ability to specify assets/resources as dependencies by supplying a comma-separated list of their handles as the value for the **`Requires`** header key.
 
-The following examples will demystify the usage of handles as dependency references:
+The examples provided below will clarify the use of handles as dependency references:
 
-#### Require a script dependency by its handle
+#### Requiring a script dependency by its handle
 
 ```javascript
 /*
  * Requires: jquery
  */
 
-/* The build-in jQuery library will be loaded by WordPress before this asset is loaded, so the jQuery function is available in time. */
+/* The build-in jQuery library will be loaded by WordPress before this asset has been loaded, so the jQuery function will be available on time. */
 jQuery(document).ready(function(){
    console.log('Document is ready');
 });
 ```
 
-#### Require a stylesheet dependency by its handle
+#### Requiring a stylesheet dependency by its handle
 
 ```css
 /*
@@ -36,14 +40,14 @@ jQuery(document).ready(function(){
 ```
 
 :::warning
-If non-existent handles are used, the dependent asset won't be loaded by WordPress.
+If non-existent handles are referenced, the dependent asset won't be loaded by WordPress.
 :::
 
 ## Path based dependencies
 
-Assets may specify other assets as dependencies, provided that they are located under the asset directories taken into account by Enqueueror. Paths relative to the **`scripts`** and **`stylesheets`** directories may be used for script and stylesheet assets respectively:
+Assets can specify other assets as dependencies as long as they are located under the asset directories that Enqueueror recognizes. For script and stylesheet assets, paths relative to the **`scripts`** and **`stylesheets`** directories respectively can be used:
 
-#### Require a script dependency by its relative path
+#### Requiring a script dependency by its relative path
 
 ```javascript
 /*
@@ -53,7 +57,7 @@ Assets may specify other assets as dependencies, provided that they are located 
 call_function_implemented_in_requirement1_js();
 ```
 
-#### Require a PHP script dependency by its relative path
+#### Requiring a PHP script dependency by its relative path
 
 ```javascript
 /*
@@ -63,7 +67,7 @@ call_function_implemented_in_requirement1_js();
 call_function_implemented_in_requirement2_js_php();
 ```
 
-#### Require a stylesheet dependency by its relative path
+#### Requiring a stylesheet dependency by its relative path
 
 ```css
 /*
@@ -75,7 +79,7 @@ call_function_implemented_in_requirement2_js_php();
 }
 ```
 
-#### Require a PHP stylesheet dependency by its relative path
+#### Requiring a PHP stylesheet dependency by its relative path
 
 ```css
 /*
@@ -88,19 +92,19 @@ call_function_implemented_in_requirement2_js_php();
 ```
 
 :::info
-- If an asset is designated for the **`body`** HTML section, but it is required by an asset intended for the **`head`** HTML section, then the former will be loaded in the **`head`** HTML section before the dependent asset.
-- Assets used exclusively as dependencies are not bound by the required naming conventions.
+- If an asset is marked for the **`body`** HTML section but is required by an asset meant for the **`head`** HTML section, the former will be loaded in the **`head`** HTML section prior to the dependent asset.
+- Assets that are only used as dependencies are not subject to the naming conventions usually required.
 :::
 
 :::warning
-If an asset used as a dependency does not exist, the dependent asset will not be loaded.
+If an asset being used as a dependency does not exist, the dependent asset will not be loaded.
 :::
 
 ## URL based dependencies
 
-To specify external scripts or stylesheets as dependencies, their URLs may be used as shown below:
+To designate external scripts or stylesheets as dependencies, their URLs can be used as demonstrated below:
 
-#### Require a script dependency by its URL
+#### Requiring a script dependency by its URL
 
 ```javascript
 /*
@@ -110,7 +114,7 @@ To specify external scripts or stylesheets as dependencies, their URLs may be us
 call_function_implemented_in_cdn_script();
 ```
 
-#### Require a stylesheet dependency by its URL
+#### Requiring a stylesheet dependency by its URL
 
 ```css
 /*
@@ -122,21 +126,21 @@ call_function_implemented_in_cdn_script();
 }
 ```
 :::warning
-Note: If a URL does not result to a valid script or stylesheet resource, the dependent asset will be loaded by WordPress, but it may fail to execute properly.
+Note: If a URL doesn't resolve to a valid script or stylesheet resource, WordPress will still load the dependent asset, but its execution might fail.
 :::
 
 ## Multiple dependencies
 
-An asset may require multiple dependencies using the comma (,) character as a separator. The dependencies may be a mix of handles, path based or URL based resources:
+An asset can require multiple dependencies, separated by a comma (,). The dependencies can be a combination of handles, path-based, or URL-based resources:
 
-#### Require multiple script dependencies
+#### Requiring multiple script dependencies
 
 ```javascript
 /*
  * Requires: jquery, /requirement1.js, /requirement2.js.php, https://cdn.example.com/script.js
  */
 
-// provided by the jQuery script represented by jquery handle
+// Provided by the jQuery script represented by the "jquery" handle
 jQuery(document).ready(function(){
    call_function_implemented_in_requirement1_js();
    call_function_implemented_in_requirement2_js_php();
@@ -144,7 +148,7 @@ jQuery(document).ready(function(){
 });
 ```
 
-#### Require multiple stylesheet dependencies
+#### Requiring multiple stylesheet dependencies
 
 ```css
 /*
@@ -158,17 +162,17 @@ jQuery(document).ready(function(){
 
 ## Dependency chain and caveats
 
-Dependencies may require other dependencies resulting in a dependency chain. Provided that **a.** all resources in the dependency chain exist, **b.** there are no circular dependencies, **c.** no third party code intervenes in WordPress enqueueing mechanism, all dependencies will be loaded in the correct order.
+Dependencies can require other dependencies, resulting in a dependency chain. As long as **a.** all resources in the dependency chain exist, **b.** there are no circular dependencies, and **c.** no third-party code interferes with WordPress's enqueueing mechanism, all dependencies will be loaded in the correct order.
 
-It is not unusual that two or more assets require the same dependencies. This scenario is also supported, resulting in the common dependencies to be loaded before the dependent assets.
+It's quite common for two or more assets to require the same dependencies. This scenario is also supported, and it results in the common dependencies being loaded before the dependent assets.
 
 :::warning
-When specifying dependencies, the developer should be careful to avoid any circular dependencies as described by the following scenario: 
+When specifying dependencies, developers need to be careful to avoid creating any circular dependencies, as illustrated by the following scenario:
 - A requires B
 - B requires C
 - C requires A
 
-This is a case of circular dependency chain that will result in WordPress halting with an error.
+This is an example of a circular dependency chain, which will result in WordPress halting with an error.
 :::
 
 
