@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.4.0
+## 1.4.0 - July 19, 2024
 
 ### Added
 - Official, direct support for Polylang.
