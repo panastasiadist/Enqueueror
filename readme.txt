@@ -1,6 +1,6 @@
 === Enqueueror ===
 Contributors: panastasiadist
-Tags: theme, development, enqueue, javascript, css, stylesheet, script, wp_enqueue_script, wp_enqueue_style
+Tags: theme, development, javascript, css
 Requires at least: 5.0
 Tested up to: 6.6
 Stable tag: 1.4.0
