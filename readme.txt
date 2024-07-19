@@ -2,17 +2,17 @@
 Contributors: panastasiadist
 Tags: theme, development, enqueue, javascript, css, stylesheet, script, wp_enqueue_script, wp_enqueue_style
 Requires at least: 5.0
-Tested up to: 6.3
-Stable tag: 1.3.1
+Tested up to: 6.6
+Stable tag: 1.4.0
 Requires PHP: 7.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
- Supercharged WordPress CSS & JS Coding
+Supercharged CSS & JS Coding for WordPress
 
 == Description ==
 
-Enqueueror enables WordPress developers to efficiently develop and manage their CSS & JavaScript code files, having them conditionally loaded, through the use of naming conventions and a bunch of convenient features which augment their code development workflow.
+Enqueueror empowers WordPress developers to manage and develop their CSS & JavaScript files efficiently. It facilitates conditional CSS & JavaScript loading through the use of naming conventions and provides numerous features to enhance the code development workflow.
 
 = Quick Start Examples =
 
@@ -62,6 +62,11 @@ You may read the guide at [GitHub](https://panastasiadist.github.io/Enqueueror/)
 16. Mix of scenarios.
 
 == Changelog ==
+= 1.4.0 =
+* Added: Official, direct support for **Polylang**.
+* Added: Support for **async** and **defer** script loading through the new **Loading** flag.
+* Changed: WordPress 6.6 compatibility update.
+* Fixed: Preprocessed, PHP-based assets will now be updated when their source files are updated.
 = 1.3.1 =
 * Fixed: Non string language codes returned by WPML filters are now properly handled.
 = 1.3.0 =

@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.4.0
+
+### Added
+- Official, direct support for Polylang.
+- Support for async and defer script loading through the new Loading flag.
+
+### Changed
+- WordPress 6.6 compatibility update.
+
+### Fixed
+- Preprocessed, PHP-based assets will now be updated when their source files are updated.
+
 ## 1.3.1 - July 25, 2023
 
 ### Fixed
